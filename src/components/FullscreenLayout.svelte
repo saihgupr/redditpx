@@ -59,7 +59,7 @@
     muted,
     layout
   } from "../_prefs";
-  autoplay.useLocalStorage(true);
+  autoplay.useLocalStorage(false);
   autoplayinterval.useLocalStorage(3);
   imageVideo.useLocalStorage(0);
   portraitLandscape.useLocalStorage(0);
