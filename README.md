@@ -108,6 +108,8 @@ redditpx has the following new features
 
 ## Acknowledgements
 
+This project is a fork of [redditpx](https://github.com/jeffjose/redditpx) by [jeffjose](https://github.com/jeffjose), which is itself a fork of [redditp](https://github.com/ubershmekel/redditp) by [ubershmekel](https://github.com/ubershmekel). Both projects are licensed under the MIT License.
+
 - svelte/sapper for framework
 - twemoji for images
 - favicon.io for favicons
