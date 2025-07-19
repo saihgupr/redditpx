@@ -61,7 +61,7 @@ The static files will be located in the `__sapper__/export` directory.
 
 ## Features
 
-redditpx has the following new features
+redditpx has the following features
 
 - [x] better mobile mode
 - [x] scrolling grid view
@@ -98,7 +98,7 @@ redditpx has the following new features
 | <kbd>m</kbd>                                                       | Add/Remove from multi-reddit            |
 | <kbd>s</kbd>                                                       | Sound on/off                            |
 | <kbd>q</kbd>, <kbd>p</kbd>                                         | Autoplay on/off                         |
-| <kbd>f</kbd>                                                       | Jump to subreddit                       |
+| <kbd>f</kbd>                                                       | Toggle fullscreen                       |
 | <kbd>/</kbd>                                                       | Filter posts                            |
 | <kbd>x</kbd>                                                       | Toggle favorites                        |
 | <kbd>r</kbd>                                                       | Open post on reddit.com                 |
