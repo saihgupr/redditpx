@@ -96,8 +96,8 @@ redditpx has the following features
 | ------------------------------------------------------------------ | --------------------------------------- |
 | <kbd>Left</kbd>, <kbd>a</kbd>, <kbd>k</kbd>, <kbd>Page up</kbd>    | Previous                                |
 | <kbd>Right</kbd>, <kbd>d</kbd>, <kbd>j</kbd>, <kbd>Page down</kbd> | Next                                    |
-| <kbd>Up</kbd>                                                      | Album next                              |
-| <kbd>Down</kbd>                                                    | Album previous                          |
+| <kbd>Up</kbd>                                                      | Album previous                          |
+| <kbd>Down</kbd>                                                    | Album next                              |
 | <kbd>Scroll Down</kbd>                                             | Next                                    |
 | <kbd>Scroll Up</kbd>                                               | Previous                                |
 | <kbd>m</kbd>                                                       | Add/Remove from multi-reddit            |
