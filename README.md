@@ -96,6 +96,8 @@ redditpx has the following features
 | <kbd>Right</kbd>, <kbd>d</kbd>, <kbd>j</kbd>, <kbd>Page down</kbd> | Next                                    |
 | <kbd>Up</kbd>                                                      | Album next                              |
 | <kbd>Down</kbd>                                                    | Album previous                          |
+| <kbd>Scroll Down</kbd>                                             | Next                                    |
+| <kbd>Scroll Up</kbd>                                               | Previous                                |
 | <kbd>m</kbd>                                                       | Add/Remove from multi-reddit            |
 | <kbd>s</kbd>                                                       | Sound on/off                            |
 | <kbd>q</kbd>, <kbd>p</kbd>                                         | Autoplay on/off                         |
