@@ -1018,8 +1018,10 @@
   <title>redditpx - {slugstr ? `r/${subreddit}` : "reddit.com"}</title>
 </svelte:head>
 
-<template lang="pug">
-.wrapper
+<template lang="pug"
+.wrapper(class:hide-cursor='{hideCursor}')
+  .hero>
+.wrapper(class:hide-cursor='{hideCursor}')
   .hero
     .title(class:hide="{!uiVisible || !titleVisible}", class:favorite="{currpost.favorite}")
       +if('displayposts.length')
