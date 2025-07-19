@@ -51,6 +51,13 @@ npm run export
 ```
 The static files will be located in the `__sapper__/export` directory.
 
+## New Features
+
+- [x] Up arrow for next post/album
+- [x] Down arrow for previous post/album
+- [x] Hide UI is on by default
+- [x] Autoplay is on by default
+
 ## Features
 
 redditpx has the following new features
@@ -67,14 +74,6 @@ redditpx has the following new features
 - [x] filter images, videos or both
 - [x] search subreddits
 - [ ] customizable keyboard shortcuts
-- [x] Up arrow for next post/album
-- [x] Down arrow for previous post/album
-- [x] Hide UI is on by default
-- [x] Autoplay is on by default
-- [x] Up arrow for next post/album
-- [x] Down arrow for previous post/album
-- [x] Hide UI is on by default
-- [x] Autoplay is on by default
 
 .. in addition to the features it shares with redditp
 
