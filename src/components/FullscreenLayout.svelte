@@ -548,7 +548,6 @@
     index += 1;
 
     if ($autoplay) stopAndStartAutoPlay();
-    toggleHideCursor();
   }
 
   async function itemPrev() {
@@ -566,7 +565,6 @@
       loadMore();
     }
     if ($autoplay) stopAndStartAutoPlay();
-    toggleHideCursor();
   }
 
   function toggleFullscreen() {
