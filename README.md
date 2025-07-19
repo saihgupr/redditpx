@@ -1,8 +1,4 @@
-<p>
-  <a href="https://redditpx.com">
-    <img alt="redditpx.com - A fast, modern alternative to redditp.com" src="https://raw.github.com/jeffjose/redditpx/master/banner.png">
-  </a>
-</p>
+
 
 # [redditpx](redditpx.com) - A fast, modern alternative to redditp.com
 
