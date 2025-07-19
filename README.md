@@ -60,7 +60,7 @@ The static files will be located in the `__sapper__/export` directory.
 - [x] F for fullscreen
 - [x] Mouse wheel for next/previous post/album
 - [x] Cursor hides when UI is hidden
-- [x] Cursor stays hidden during keyboard navigation when UI is hidden
+
 
 ## Features
 
