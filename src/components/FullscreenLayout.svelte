@@ -854,6 +854,14 @@
     if ($autoplay) stopAndStartAutoPlay();
   }
 
+  function wheel(event) {
+    if (event.deltaY > 0) {
+      next();
+    } else if (event.deltaY < 0) {
+      prev();
+    }
+  }
+
   function keydown(event) {
     // up
     if (event.keyCode == 38) {
@@ -992,7 +1000,7 @@
   }
 </script>
 
-<svelte:window on:keydown={keydown} />
+<svelte:window on:keydown={keydown} on:wheel={wheel} />
 <svelte:head>
   <title>redditpx - {slugstr ? `r/${subreddit}` : "reddit.com"}</title>
 </svelte:head>
