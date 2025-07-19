@@ -637,6 +637,17 @@
     uiVisible = !uiVisible;
 
     showhidestr = uiVisible ? "Hide (h)" : "Show (h)";
+
+    if (hideCursorTimerId) {
+      clearTimeout(hideCursorTimerId);
+      hideCursorTimerId = 0;
+    }
+
+    if (!uiVisible) {
+      hideCursor = true;
+    } else {
+      hideCursor = false;
+    }
   }
 
   function toggleSettings() {
