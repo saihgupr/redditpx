@@ -67,7 +67,7 @@
   over18.useLocalStorage(1);
   multireddit.useLocalStorage({});
   prefetch.useLocalStorage(true);
-  prefetchNum.useLocalStorage(3);
+  prefetchNum.useLocalStorage(50);
   hires.useLocalStorage(false);
   lores.useLocalStorage(true);
   oldreddit.useLocalStorage(false);

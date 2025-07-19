@@ -21,7 +21,7 @@
   autoplayinterval.useLocalStorage(3);
   scrollspeed.useLocalStorage(2);
   prefetch.useLocalStorage(true);
-  prefetchNum.useLocalStorage(3);
+  prefetchNum.useLocalStorage(50);
   numCols.useLocalStorage(3);
   hires.useLocalStorage(false);
   lores.useLocalStorage(false);
