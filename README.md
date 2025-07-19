@@ -1,8 +1,8 @@
 
 
-# [redditpx](https://redditpx.com) - A fast, modern alternative to redditp.com
+# redditpx - A fast, modern alternative to redditp.com
 
-[redditpx](https://redditpx.com) is a fast & fun way to make slideshows out of reddit.
+redditpx is a fast & fun way to make slideshows out of reddit.
 
 ## Getting Started
 
