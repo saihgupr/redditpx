@@ -82,7 +82,7 @@
 
   let data;
   let displayposts = [];
-  let uiVisible = true;
+  let uiVisible = false;
   let hideCursor = true;
   let hideCursorTimerId = 0;
   let titleVisible = true;
@@ -155,7 +155,7 @@
   let over18str = "";
   let deepsearchstr = "";
   let multiredditstr = "";
-  let showhidestr = "Hide (h)";
+  let showhidestr = "Show (h)";
   let mutedstr = "Sound Off";
 
   let autoplaytimer;
