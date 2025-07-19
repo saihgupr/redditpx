@@ -1,0 +1,68 @@
+{
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/home", "destination": "/home.html" },
+    { "source": "/random", "destination": "/random.html" },
+    { "source": "/randnsfw", "destination": "/randnsfw.html" },
+    {
+      "source": "/m/:sr",
+      "destination": "/m/subreddit/index.html"
+    },
+    {
+      "source": "/r/:sr",
+      "destination": "/r/subreddit/index.html"
+    },
+    {
+      "source": "/r/:sr/top",
+      "destination": "/r/subreddit/top/index.html"
+    },
+    {
+      "source": "/r/:sr/hot",
+      "destination": "/r/subreddit/hot/index.html"
+    },
+    {
+      "source": "/r/:sr/new",
+      "destination": "/r/subreddit/new/index.html"
+    },
+    {
+      "source": "/r/:sr/search",
+      "destination": "/r/subreddit/search/index.html"
+    },
+    {
+      "source": "/domain/:d",
+      "destination": "/domain/domainname/index.html"
+    },
+    {
+      "source": "/user/:u",
+      "destination": "/user/username/index.html"
+    },
+    {
+      "source": "/u/:u",
+      "destination": "/u/username/index.html"
+    },
+    {
+      "source": "/gfycat.com/:user",
+      "destination": "/gfycat.com/user/index.html"
+    },
+    {
+      "source": "/gfycat.com/:user/collections/:collection/:collectionname",
+      "destination": "/gfycat.com/user/collections/collection/collectionname/index.html"
+    },
+    {
+      "source": "/imgur.com/a/:album",
+      "destination": "/imgur.com/a/albumname/index.html"
+    },
+    {
+      "source": "/imgur.com/gallery/:gallery",
+      "destination": "/imgur.com/gallery/galleryname/index.html"
+    },
+    {
+      "source": "/gettyimages.com/photos/:query",
+      "destination": "/gettyimages.com/photos/query/index.html"
+    },
+    {
+      "source": "/api/(.*)*",
+      "destination": "/api"
+    }
+  ]
+}
