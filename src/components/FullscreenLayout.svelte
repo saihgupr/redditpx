@@ -876,12 +876,12 @@
   function keydown(event) {
     // up
     if (event.keyCode == 38) {
-      next();
+      prev();
     }
 
     // down
     if (event.keyCode == 40) {
-      prev();
+      next();
     }
 
     // m
