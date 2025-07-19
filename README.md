@@ -58,6 +58,7 @@ The static files will be located in the `__sapper__/export` directory.
 - [x] Hide UI is on by default
 - [x] Autoplay is on by default
 - [x] F for fullscreen
+- [x] Mouse wheel for next/previous post/album
 
 ## Features
 
