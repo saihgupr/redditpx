@@ -8,6 +8,53 @@
 
 [redditpx](redditpx.com) is a fast & fun way to make slideshows out of reddit.
 
+## Getting Started
+
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+You'll need [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/get-npm) installed on your machine.
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/saihgupr/redditpx.git
+   ```
+2. Navigate to the project directory
+   ```sh
+   cd redditpx
+   ```
+3. Install NPM packages
+   ```sh
+   npm install
+   ```
+
+### Usage
+
+To run the app in development mode:
+```sh
+npm run dev
+```
+This will start a development server, usually at `http://localhost:3000`.
+
+To create a production version of the app:
+```sh
+npm run build
+```
+
+To run the production version:
+```sh
+npm run start
+```
+
+To create a static version of the site that can be hosted on any static web server:
+```sh
+npm run export
+```
+The static files will be located in the `__sapper__/export` directory.
+
 ## Features
 
 redditpx has the following new features
