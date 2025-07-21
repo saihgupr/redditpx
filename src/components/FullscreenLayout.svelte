@@ -876,12 +876,12 @@
   function keydown(event) {
     // up
     if (event.keyCode == 38) {
-      prev();
+      next();
     }
 
     // down
     if (event.keyCode == 40) {
-      itemNext();
+      prev();
     }
 
     // m
@@ -1005,7 +1005,7 @@
         const video = document.getElementById('videoplayerid');
         video.currentTime += 5;
       } else {
-        next();
+        itemNext();
       }
     }
   }
