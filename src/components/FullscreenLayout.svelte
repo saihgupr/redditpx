@@ -881,7 +881,7 @@
 
     // down
     if (event.keyCode == 40) {
-      next();
+      itemNext();
     }
 
     // m
@@ -1005,7 +1005,7 @@
         const video = document.getElementById('videoplayerid');
         video.currentTime += 5;
       } else {
-        itemNext();
+        next();
       }
     }
   }
