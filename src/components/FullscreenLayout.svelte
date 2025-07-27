@@ -261,19 +261,24 @@
     autoplay.set(true);
   }
 
-  function prev() {
+  async function prev() {
     if (currpost.is_album && albumindex > 0) {
       albumPrev();
     } else {
       itemPrev();
+      await tick(); // Ensure currpost is updated
+      if (currpost.is_album) {
+        albumindex = currpost.preview.img.album.length - 1;
+      }
     }
   }
 
-  function next() {
+  async function next() {
     if (currpost.is_album && !isEndOfAlbum()) {
       albumNext();
     } else {
       itemNext();
+      await tick(); // Ensure currpost is updated
     }
   }
 
@@ -515,7 +520,7 @@
   }
 
   function itemNext() {
-    albumindex = 0;
+    albumindex = 0; // Always reset album index to 0 when moving to a new post
     let itemNum = displayposts.length - 1 - index;
 
     // Last item, dont go past the last item
@@ -554,12 +559,9 @@
     if (index === 0) return;
     index -= 1;
 
-    await tick(); // Ensure currpost is updated before accessing its properties
+    albumindex = 0; // Always reset album index to 0 when moving to a new post
 
-    // If the new current post is an album, start from its last image when navigating backwards
-    if (currpost.is_album) {
-      albumindex = currpost.preview.img.album.length - 1;
-    }
+    await tick(); // Ensure currpost is updated before accessing its properties
 
     if (displayposts.length - index === 3) {
       loadMore();
