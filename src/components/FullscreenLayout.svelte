@@ -1165,12 +1165,6 @@
             on:click="{toggleAutoPlay}"
           )
             Icon(icon="{$autoplay ? faPause : faPlay}")
-          span.btn.download.tooltip(
-            on:click="{downloadFiles}",
-            data-tooltip="{downloadstr}",
-            class:dlready="{numFavorite}"
-          )
-            Icon(icon="{faDownload}")
           span.btn.dice.tooltip(
             on:click="{shuffleFiles}",
             data-tooltip="Shuffle",
