@@ -61,6 +61,8 @@ The static files will be located in the `__sapper__/export` directory.
 - [x] Mouse wheel for next/previous post/album
 - [x] Cursor hides when UI is hidden
 - [x] Fixed audio for Reddit videos (v.redd.it)
+- [x] Mute button works correctly
+- [x] 'm' key toggles mute
 
 ## Features
 
