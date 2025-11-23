@@ -233,7 +233,7 @@
           span.key x
         .item
           span.text Toggle Sound
-          span.key s
+          span.key m
         .item
           span.text Remove all favorites
           span.key Shift + x
@@ -255,7 +255,7 @@
           span.key i
         .item
           span.text Add to multireddit
-          span.key m
+          span.key s
 </template>
 
 <style lang="sass">

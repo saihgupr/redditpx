@@ -937,6 +937,8 @@
   }
 
   function wheel(event) {
+    if (showSettings) return;
+
     if (event.deltaY > 0) {
       next();
     } else if (event.deltaY < 0) {
@@ -945,6 +947,13 @@
   }
 
   function keydown(event) {
+    if (showSettings) {
+      if (event.keyCode == 27) { // ESC
+        showSettings = false;
+      }
+      return;
+    }
+
     // up
     if (event.keyCode == 38) {
       next();
