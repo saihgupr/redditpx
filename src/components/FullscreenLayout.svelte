@@ -1005,7 +1005,7 @@
       }
     }
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       return;
     }
 
