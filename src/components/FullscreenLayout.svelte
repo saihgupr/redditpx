@@ -347,46 +347,71 @@
   }
 
   // Update video properties reactively to handle muted and loop attributes
-  $: {
-    if (renderVideo) {
-      setTimeout(() => {
-        const video = document.getElementById('videoplayerid');
-        
-        if (video) {
-          // Force muted state first - browsers block unmuted autoplay
-          video.muted = $muted;
-          video.loop = !$autoplay;
+  let dashPlayer = null;
 
-          const attemptPlay = () => {
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(error => {
-                console.log("Autoplay prevented:", error);
-                // If unmuted autoplay failed, try muting and playing again
-                if (!$muted) {
-                  console.log("Retrying autoplay with mute...");
-                  video.muted = true;
-                  video.play();
-                }
-              });
-            }
-          };
-          
-          // For Reddit videos with DASH URLs, use dash.js for proper audio support
-          if (currpost.preview?.vid?.dashUrl && typeof dashjs !== 'undefined') {
-            const player = dashjs.MediaPlayer().create();
-            player.initialize(video, currpost.preview.vid.dashUrl, true);
-            player.setMute($muted);
-            // Dash.js needs a moment to initialize before playing
-            player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-              attemptPlay();
+  function setupVideoPlayer() {
+    setTimeout(() => {
+      const video = document.getElementById('videoplayerid');
+      
+      if (video) {
+        // Force muted state first - browsers block unmuted autoplay
+        video.muted = $muted;
+        video.loop = !$autoplay;
+
+        const attemptPlay = () => {
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.log("Autoplay prevented:", error);
+              // If unmuted autoplay failed, try muting and playing again
+              if (!$muted) {
+                console.log("Retrying autoplay with mute...");
+                video.muted = true;
+                video.play();
+              }
             });
-          } else {
-            // For non-DASH videos, play immediately
-            attemptPlay();
           }
+        };
+        
+        // For Reddit videos with DASH URLs, use dash.js for proper audio support
+        if (currpost.preview?.vid?.dashUrl && typeof dashjs !== 'undefined') {
+          dashPlayer = dashjs.MediaPlayer().create();
+          dashPlayer.initialize(video, currpost.preview.vid.dashUrl, true);
+          dashPlayer.setMute($muted);
+          // Dash.js needs a moment to initialize before playing
+          dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+            attemptPlay();
+          });
+        } else {
+          // For non-DASH videos, play immediately
+          attemptPlay();
         }
-      }, 100); // Increased timeout slightly to ensure DOM is ready
+      }
+    }, 100);
+  }
+
+  // Initialize video when renderVideo becomes true
+  // Note: We call a function to avoid adding $muted as a dependency to this block
+  $: if (renderVideo) {
+    setupVideoPlayer();
+  }
+
+  // Cleanup when renderVideo becomes false
+  $: if (!renderVideo && dashPlayer) {
+    dashPlayer.reset();
+    dashPlayer = null;
+  }
+
+  // Separate reactive block for mute updates to avoid re-initializing video
+  $: {
+    const isMuted = $muted; // Capture dependency
+    if (dashPlayer) {
+      dashPlayer.setMute(isMuted);
+    } else {
+      const video = document.getElementById('videoplayerid');
+      if (video) {
+        video.muted = isMuted;
+      }
     }
   }
 
