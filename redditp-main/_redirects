@@ -1,0 +1,10 @@
+# DOES THIS FILE EVEN WORK AT ALL?
+# vercel.json seems to be the only one that counts.
+# source dest httpcode
+/r/* / 200
+/u/* / 200
+/user/* / 200
+/domain/* / 200
+/search/* / 200
+/search / 200
+

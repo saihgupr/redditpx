@@ -404,6 +404,7 @@ async function vidsrc(url: string, item: RedditItem) {
     return {
       mp4: item.data.media.reddit_video.fallback_url,
       lores: item.data.media.reddit_video.fallback_url,
+      dashUrl: item.data.media.reddit_video.dash_url,
     };
   } else if (url.includes("reddit.com/r/")) {
     return {
@@ -487,7 +488,7 @@ export async function format(item: RedditItem): Promise<FormattedItem> {
   // vidsrc does caching of api response, so make it one of the first items in this fuction
   let vids: Vid = {};
   if (is_video(item)) {
-    try { vids = await vidsrc(url(item), item); } catch {}    
+    try { vids = await vidsrc(url(item), item); } catch { }
   }
 
   let dims: Dims = get_dims(item);

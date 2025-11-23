@@ -1,0 +1,23 @@
+version: '2'
+services:
+  redditp:
+    image: httpd:2.2.32
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverseproxy_default"
+      - "traefik.backend=redditp"
+      - "traefik.frontend.rule=Host:redditp.com"
+    networks:
+      - "reverseproxy_default"
+    restart: always
+    volumes:
+      - .:/usr/local/apache2/htdocs/:ro
+      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+    logging:
+      options:
+        max-size: "50m"
+
+networks:
+  reverseproxy_default:
+    external:
+      name: reverseproxy_default

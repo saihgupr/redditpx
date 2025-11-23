@@ -2,7 +2,7 @@
   export async function preload({ path, params, query }) {
     if (typeof window === "undefined") return;
 
-    let slugstr = path.substring(1).replace(/\/$/, "").replace(/%20/g, ""); // remove the leading and trailing slash, and %20 (spaces)
+    let slugstr = path.substring(1).replace(/\/$/, "").replace(/%20/g, "+"); // remove the leading and trailing slash, and convert %20 to + for subreddit combinations
     fetch("https://redditpx.jeffjose.cloud/" + slugstr).catch((e) => e);
 
     // If the user has r/user/username, they probably wanted

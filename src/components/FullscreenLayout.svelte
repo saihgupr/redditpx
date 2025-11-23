@@ -346,6 +346,29 @@
     setTimeout(() => (renderVideo = true), 0);
   }
 
+  // Update video properties reactively to handle muted and loop attributes
+  $: {
+    if (renderVideo) {
+      setTimeout(() => {
+        const video = document.getElementById('videoplayerid');
+        
+        if (video) {
+          // For Reddit videos with DASH URLs, use dash.js for proper audio support
+          if (currpost.preview?.vid?.dashUrl && typeof dashjs !== 'undefined') {
+            const player = dashjs.MediaPlayer().create();
+            player.initialize(video, currpost.preview.vid.dashUrl, true);
+            player.setMute($muted);
+          } else {
+            // For non-DASH videos, set muted directly
+            video.muted = $muted;
+          }
+          
+          video.loop = !$autoplay;
+        }
+      }, 0);
+    }
+  }
+
   $: {
     // Subreddit search
     if (subredditSearchValue) {
