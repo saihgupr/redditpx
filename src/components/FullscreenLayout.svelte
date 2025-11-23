@@ -911,12 +911,12 @@
 
     // m
     if (event.keyCode == 77) {
-      toggleMultireddit();
+      toggleMuted();
     }
 
     // s
     if (event.keyCode == 83) {
-      toggleMuted();
+      toggleMultireddit();
     }
 
     // q, p

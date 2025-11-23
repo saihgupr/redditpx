@@ -56,11 +56,11 @@ The static files will be located in the `__sapper__/export` directory.
 - [x] Up arrow for next post/album
 - [x] Down arrow for previous post/album
 - [x] Hide UI is on by default
-- [x] Autoplay is on by default
+- [x] Autoplay is off by default
 - [x] F for fullscreen
 - [x] Mouse wheel for next/previous post/album
 - [x] Cursor hides when UI is hidden
-
+- [x] Fixed audio for Reddit videos (v.redd.it)
 
 ## Features
 
@@ -100,8 +100,8 @@ redditpx has the following features
 | <kbd>Down</kbd>                                                    | Album previous                          |
 | <kbd>Scroll Down</kbd>                                             | Next                                    |
 | <kbd>Scroll Up</kbd>                                               | Previous                                |
-| <kbd>m</kbd>                                                       | Add/Remove from multi-reddit            |
-| <kbd>s</kbd>                                                       | Sound on/off                            |
+| <kbd>m</kbd>                                                       | Sound on/off                            |
+| <kbd>s</kbd>                                                       | Add/Remove from multi-reddit            |
 | <kbd>q</kbd>, <kbd>p</kbd>                                         | Autoplay on/off                         |
 | <kbd>f</kbd>                                                       | Toggle fullscreen                       |
 | <kbd>/</kbd>                                                       | Filter posts                            |
