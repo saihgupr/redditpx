@@ -353,19 +353,40 @@
         const video = document.getElementById('videoplayerid');
         
         if (video) {
+          // Force muted state first - browsers block unmuted autoplay
+          video.muted = $muted;
+          video.loop = !$autoplay;
+
+          const attemptPlay = () => {
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(error => {
+                console.log("Autoplay prevented:", error);
+                // If unmuted autoplay failed, try muting and playing again
+                if (!$muted) {
+                  console.log("Retrying autoplay with mute...");
+                  video.muted = true;
+                  video.play();
+                }
+              });
+            }
+          };
+          
           // For Reddit videos with DASH URLs, use dash.js for proper audio support
           if (currpost.preview?.vid?.dashUrl && typeof dashjs !== 'undefined') {
             const player = dashjs.MediaPlayer().create();
             player.initialize(video, currpost.preview.vid.dashUrl, true);
             player.setMute($muted);
+            // Dash.js needs a moment to initialize before playing
+            player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+              attemptPlay();
+            });
           } else {
-            // For non-DASH videos, set muted directly
-            video.muted = $muted;
+            // For non-DASH videos, play immediately
+            attemptPlay();
           }
-          
-          video.loop = !$autoplay;
         }
-      }, 0);
+      }, 100); // Increased timeout slightly to ensure DOM is ready
     }
   }
 
@@ -1077,7 +1098,7 @@
         +else()
           .image(style="background-image: url('{currpost.preview.img.default}')")
       +elseif('currpost.is_video && renderVideo') 
-        video.video(autoplay, loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", id="videoplayerid", on:click="{onVideoPlayerClicked}")
+        video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", id="videoplayerid", on:click="{onVideoPlayerClicked}")
           +if('$lores')
             source(src="{currpost.preview.vid.lores}")
             +else()
@@ -1088,7 +1109,7 @@
                 
       +elseif('currpost.is_album')
         +if('currpost.preview.img.album[albumindex].is_video')
-          video.video(autoplay, loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", on:click="{onVideoPlayerClicked}")
+          video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", on:click="{onVideoPlayerClicked}")
             source(src="{currpost.preview.img.album[albumindex].hires}")
           +else()
             +if('$hires')
