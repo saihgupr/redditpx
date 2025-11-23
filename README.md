@@ -53,16 +53,16 @@ The static files will be located in the `__sapper__/export` directory.
 
 ## New Features
 
-- [x] Up arrow for next post/album
-- [x] Down arrow for previous post/album
-- [x] Hide UI is on by default
-- [x] Autoplay is off by default
-- [x] F for fullscreen
-- [x] Mouse wheel for next/previous post/album
-- [x] Cursor hides when UI is hidden
-- [x] Fixed audio for Reddit videos (v.redd.it)
-- [x] Mute button works correctly
-- [x] 'm' key toggles mute
+- Up arrow: next post/album
+- Down arrow: previous post/album
+- UI starts hidden by default
+- Autoplay starts off
+- F toggles fullscreen
+- Mouse wheel moves to next/previous post/album
+- Cursor hides when the UI is hidden
+- Fixed audio handling for Reddit (v.redd.it) videos
+- Mute button works
+- M toggles mute
 
 ## Features
 
