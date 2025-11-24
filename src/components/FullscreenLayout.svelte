@@ -1120,7 +1120,7 @@
         span.btn.tooltip.bottom.donate(data-tooltip="Donate")
           Icon(icon="{faDonate}")
       a.home(rel="prefetch", href="/home", class:hide='{uiVisible == false}')
-        span.btn.cog.tooltip.bottom(data-tooltip="Home")
+        span.btn.cog
           Icon(icon="{faHome}")
       span.btn.cog(on:click='{toggleSettings}', class:showSettings='{showSettings}', class:hide='{uiVisible == false}')
         Icon(icon="{faSettings}")
