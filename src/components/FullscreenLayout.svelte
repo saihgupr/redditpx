@@ -1120,7 +1120,7 @@
         span.btn.tooltip.bottom.donate(data-tooltip="Donate")
           Icon(icon="{faDonate}")
       a.home(rel="prefetch", href="/home", class:hide='{uiVisible == false}')
-        span.btn.tooltip.bottom(data-tooltip="Home")
+        span.btn.cog.tooltip.bottom(data-tooltip="Home")
           Icon(icon="{faHome}")
       span.btn.cog(on:click='{toggleSettings}', class:showSettings='{showSettings}', class:hide='{uiVisible == false}')
         Icon(icon="{faSettings}")
@@ -1312,11 +1312,13 @@ $isnotmulti-color: #34a853
     .settings
       z-index: 10
       position: absolute
-      top: 0
-      right: 0
+      top: 1rem
+      right: 1rem
       color: $text-color
       font-size: 1rem
-      padding: 1.5rem 2rem
+      display: flex
+      align-items: center
+
 
       .btn
         user-select: none
@@ -1325,11 +1327,30 @@ $isnotmulti-color: #34a853
         margin-left: 10px
         font-size: 1.1rem
 
-
         &.donate
           color: $yellow
 
-        &.cog, &.expand
+        &.cog
+          cursor: pointer
+          font-size: 1.2rem
+          color: white
+          background-color: rgba(26, 26, 26, 0.95)
+          backdrop-filter: blur(20px)
+          border-radius: 12px
+          transition: all 0.2s ease
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
+          padding: 10px
+          display: flex
+          align-items: center
+          justify-content: center
+          width: 40px
+          height: 40px
+
+          @include hover()
+            background-color: rgba(34, 34, 34, 0.95)
+            transform: scale(1.05)
+
+        &.expand
           font-size: 1.1rem
 
         &.showSettings
@@ -1404,15 +1425,18 @@ $isnotmulti-color: #34a853
       user-select: none
       z-index: 5
       position: absolute
-      background-color: rgba(0, 0, 0, 0.6)
+      background-color: rgba(26, 26, 26, 0.5)
+      backdrop-filter: blur(20px)
       bottom: 0
       display: grid
-      grid-row-gap: 5px
-      padding: 1rem 11rem
-      border-radius: 3px
+      grid-row-gap: 8px
+      padding: 1.5rem 2rem
+      border-radius: 12px
+      margin: 1rem
       color: $text-color
-      width: 100%
-      grid-template-columns: repeat(auto-fill, minmax(32px, 1fr))
+      width: calc(100% - 2rem)
+      grid-template-columns: repeat(auto-fill, minmax(40px, 1fr))
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
 
       &.tinygoto
         grid-template-rows: auto 1fr
@@ -1431,11 +1455,18 @@ $isnotmulti-color: #34a853
 
           .nums
             border-bottom: 3px solid rgba(white, 30%)
-            height: 1rem
+            height: 32px
             cursor: pointer
+            border-radius: 4px
+            transition: all 0.2s ease
+            display: flex
+            align-items: center
+            justify-content: center
+            min-width: 40px
 
             @include hover()
               border-bottom: 3px solid $accent-color !important
+              background-color: rgba(255, 255, 255, 0.1)
 
             &.currnum
               border-bottom: 3px solid $accent-color !important
@@ -1476,8 +1507,20 @@ $isnotmulti-color: #34a853
 
       .btn
         text-align: center
-        padding-top: 2px
-        color: rgba(white, 30%)
+        padding: 8px
+        color: rgba(white, 60%)
+        cursor: pointer
+        border-radius: 8px
+        transition: all 0.2s ease
+        display: flex
+        align-items: center
+        justify-content: center
+        min-width: 40px
+        height: 40px
+
+        @include hover()
+          color: white
+          background-color: rgba(255, 255, 255, 0.1)
 
         &.reload
           cursor: pointer

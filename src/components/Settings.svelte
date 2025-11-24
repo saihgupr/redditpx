@@ -275,61 +275,74 @@ $over18-border-color: #ea4335
 
 .settingspanel
   position: fixed
-  background-color: black
-  left: 25%
-  top: 25%
-  width: 50%
-  height: 50%
-  border-radius: 5px
-  border: 1px solid white
-  padding: 1rem
+  background-color: #1a1a1a
+  left: 50%
+  top: 50%
+  transform: translate(-50%, -50%)
+  width: 800px
+  height: 520px
+  border-radius: 12px
+  border: none
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4)
+  backdrop-filter: blur(20px)
+  padding: 0
   display: none
+  overflow: hidden
+  z-index: 9999
 
-  grid-template-rows: [head-start] 2.5rem [head-end contents-start] 2fr [contents-end]
+  grid-template-rows: [head-start] 60px [head-end contents-start] 1fr [contents-end]
 
   &.showSettings
     display: grid
-    grid-gap: 1rem
+    grid-gap: 0
 
   .contents
     grid-row: contents
     display: grid
-    grid-template-columns: 1fr 2fr
+    grid-template-columns: 180px 1fr
     overflow: hidden
     user-select: none
+    background-color: #1a1a1a
 
     .nav
-      font-size: 1.1rem
-
-      display: grid
-      grid-auto-rows: max-content
-      grid-gap: 5px
-
-      align-items: center
-      justify-items: center
+      font-size: 14px
+      font-weight: 400
+      background-color: #222
+      border-right: 1px solid #333
+      padding: 20px 0
+      display: flex
+      flex-direction: column
+      gap: 0
+      align-items: stretch
 
       // flow items one below other
-      grid-auto-flow: row
+      // grid-auto-flow: row
 
       .active
-        background-color: rgba(255, 255, 255, 0.2)
-        border-bottom: 3px solid $accent-color
+        background-color: #2a2a2a
+        color: #fff
+        border-left-color: $yellow
 
       div
-        padding: 0.5rem 1rem
-        border-bottom: 3px solid rgba(0, 0, 0, 0)
-        width: 100%
-        height: 100%
+        padding: 12px 20px
         cursor: pointer
+        transition: all 0.2s ease
+        color: #ccc
+        border-left: 3px solid transparent
+        width: 100%
+        height: auto
+        border-bottom: none
 
         @include hover()
-          background-color: rgba(255, 255, 255, 0.2)
-          border-bottom: 3px solid $accent-color
+          background-color: #2a2a2a
+          color: #fff
 
     .options
-      background-color: rgba(black, 0%)
-      border-left: 1px solid white
-      overflow: auto
+      background-color: #1a1a1a
+      border-left: none
+      overflow-y: auto
+      padding: 15px 20px 10px 20px
+      max-height: 100%
 
       .option
         display: none
@@ -373,30 +386,52 @@ $over18-border-color: #ea4335
 
   .close
     position: absolute
-    top: 1rem
-    color: rgba(white, 60%)
+    top: 15px
+    right: 20px
+    color: #888
     cursor: pointer
-    right: 1rem
+    width: 30px
+    height: 30px
+    display: flex
+    align-items: center
+    justify-content: center
+    border-radius: 6px
+    transition: all 0.2s ease
 
     @include hover()
-      color: white
-
-  .head
-    font-size: 1.5rem
-    align-self: center
+      background-color: #333
+      color: #fff
 
     :global(svg)
-      position: relative
-      top: 3px
+      width: 16px
+      height: 16px
+
+  .head
+    grid-row: head
+    display: flex
+    align-items: center
+    justify-content: center
+    background-color: #222
+    color: #fff
+    font-size: 18px
+    font-weight: 600
+    border-bottom: 1px solid #333
+    position: relative
+    align-self: stretch
+
+    :global(svg)
       margin-right: 10px
+      width: 20px
+      height: 20px
 
-  @media (max-width: 1600px)
-    width: 80%
-    left: 10%
+  @media (max-width: 900px)
+    width: 90vw
+    max-width: 700px
 
-  @media (max-width: 1000px)
-    width: 90%
-    left: 5%
+  @media (max-width: 600px)
+    width: 95vw
+    height: 80vh
+    max-width: none
 
   @media (max-width: 800px)
 
