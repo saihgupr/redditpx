@@ -180,22 +180,34 @@ $over18-border-color: #ea4335
     .settings
       z-index: 10
       position: absolute
-      top: 0
-      right: 0
+      top: 1rem
+      right: 1rem
       color: $text-color
       font-size: 1rem
-      padding: 1.5rem
 
       .btn
         user-select: none
         cursor: pointer
-        color: rgba(white, 80%)
+        font-size: 1.2rem
+        color: white
+        background-color: rgba(26, 26, 26, 0.95)
+        backdrop-filter: blur(20px)
+        border-radius: 12px
+        transition: all 0.2s ease
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
+        padding: 10px
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 40px
+        height: 40px
 
         &.showSettings
           color: white
 
         @include hover()
-          color: white
+          background-color: rgba(34, 34, 34, 0.95)
+          transform: scale(1.05)
 
     .title
       z-index: 10
