@@ -1,6 +1,7 @@
 <script>
   import Icon from "fa-svelte/src/Icon.svelte";
   import { faCog as faSettings } from "@fortawesome/free-solid-svg-icons/faCog";
+  import { faReply as faReturn } from "@fortawesome/free-solid-svg-icons/faReply";
 
   import { faCloudDownloadAlt as faDownload } from "@fortawesome/free-solid-svg-icons/faCloudDownloadAlt";
   import { faEye as faSlideshow } from "@fortawesome/free-solid-svg-icons/faEye";
@@ -32,6 +33,10 @@
 
   function toggleSettings() {
     showSettings = !showSettings;
+  }
+
+  function goBack() {
+    window.history.back();
   }
 
   let displayposts = [];
@@ -71,6 +76,8 @@
         img(alt="redditpx logo", src="logo-192.png")
       | redditpx
     .settings
+      span.btn(on:click='{goBack}')
+        Icon(icon="{faReturn}")
       span.btn(on:click='{toggleSettings}', class:showSettings='{showSettings}')
         Icon(icon="{faSettings}")
       Settings('{showSettings}')
@@ -184,9 +191,12 @@ $over18-border-color: #ea4335
       right: 1rem
       color: $text-color
       font-size: 1rem
+      display: flex
+      align-items: center
 
       .btn
         user-select: none
+        margin-left: 10px
         cursor: pointer
         font-size: 1.2rem
         color: white
