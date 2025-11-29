@@ -6,7 +6,7 @@
   import { faPause } from "@fortawesome/free-solid-svg-icons/faPause";
   import { faCog as faSettings } from "@fortawesome/free-solid-svg-icons/faCog";
   import { faHome } from "@fortawesome/free-solid-svg-icons/faHome";
-  import { faDonate } from "@fortawesome/free-solid-svg-icons/faDonate";
+
   import { faExpandAlt as faExpand } from "@fortawesome/free-solid-svg-icons/faExpandAlt";
   import { faCloudDownloadAlt as faDownload } from "@fortawesome/free-solid-svg-icons/faCloudDownloadAlt";
   import { faDice } from "@fortawesome/free-solid-svg-icons/faDice";
@@ -1117,9 +1117,7 @@
           .subredditwrapper.tooltip.bottom(data-tooltip='{multiredditstr}', on:click|stopPropagation='{toggleMultireddit}', class:ismulti='{ismultireddit}')
             Icon(icon="{ismultireddit ? faMinusCircle : faPlusCircle}")
     .settings
-      a.donate(href="https://ko-fi.com/redditpx" target="_blank" class:hide='{currpost.favorite == false}')
-        span.btn.tooltip.bottom.donate(data-tooltip="Donate")
-          Icon(icon="{faDonate}")
+
       a.home(rel="prefetch", href="/home", class:hide='{uiVisible == false}')
         span.btn.cog
           Icon(icon="{faHome}")
@@ -1330,8 +1328,7 @@ $isnotmulti-color: #34a853
         margin-left: 10px
         font-size: 1.1rem
 
-        &.donate
-          color: $yellow
+
 
         &.cog
           cursor: pointer
