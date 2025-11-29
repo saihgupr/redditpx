@@ -31,6 +31,7 @@
   import AutoComplete from "simple-svelte-autocomplete";
 
   import Settings from "./Settings.svelte";
+  import SortSelector from "./SortSelector.svelte";
 
   import { onMount, tick } from "svelte";
   import { goto as ahref } from "@sapper/app";
@@ -1122,6 +1123,8 @@
       a.home(rel="prefetch", href="/home", class:hide='{uiVisible == false}')
         span.btn.cog
           Icon(icon="{faHome}")
+      .sort-wrapper(class:hide='{uiVisible == false}')
+        SortSelector({slugstr}, {params})
       span.btn.cog(on:click='{toggleSettings}', class:showSettings='{showSettings}', class:hide='{uiVisible == false}')
         Icon(icon="{faSettings}")
       .div(class:hide='{uiVisible == false}')
