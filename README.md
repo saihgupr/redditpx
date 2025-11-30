@@ -68,6 +68,10 @@ The static files will be located in the `__sapper__/export` directory.
 - **Sort Selector**: Easily switch between Hot, New, Rising, Top, and Controversial sorting with time filters for Top/Controversial
 - **Compact Multireddit List**: Streamlined list view on the home page for better visibility of saved subreddits
 
+## Browser Extensions
+
+Enhance your redditpx experience with the **[Redditpx Chrome Extension](https://github.com/saihgupr/Redditpx-Chrome-Extension)**! This extension adds convenient features to make browsing Reddit with redditpx even easier.
+
 ## Features
 
 redditpx has the following features
