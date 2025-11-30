@@ -86,11 +86,43 @@
   let uiVisible = false;
   let hideCursor = true;
   let hideCursorTimerId = 0;
+  let autoHideTimerId = null; // Timer for auto-hiding UI after cursor stops moving
   let titleVisible = true;
   let numFavorite;
   let tinygoto;
   let title;
   let albumindex = 0;
+
+  // Handle cursor movement - only show UI when it's hidden
+  function handleCursorMovement() {
+    // Only react to cursor movement if UI is currently hidden
+    if (!uiVisible) {
+      // Show both UI and cursor
+      uiVisible = true;
+      hideCursor = false;
+      
+      // Clear any existing auto-hide timer
+      if (autoHideTimerId) {
+        clearTimeout(autoHideTimerId);
+      }
+      
+      // Set new timer to hide after 3 seconds of inactivity
+      autoHideTimerId = setTimeout(() => {
+        uiVisible = false;
+        hideCursor = true;
+        autoHideTimerId = null;
+      }, 3000);
+    } else if (autoHideTimerId) {
+      // If UI is visible due to auto-show (timer exists), reset the timer
+      clearTimeout(autoHideTimerId);
+      autoHideTimerId = setTimeout(() => {
+        uiVisible = false;
+        hideCursor = true;
+        autoHideTimerId = null;
+      }, 3000);
+    }
+    // If UI is manually visible (no timer), do nothing
+  }
 
   $: {
     if (currpost.is_album) {
@@ -708,6 +740,12 @@
 
     showhidestr = uiVisible ? "Hide (h)" : "Show (h)";
 
+    // Clear auto-hide timer when manually toggling
+    if (autoHideTimerId) {
+      clearTimeout(autoHideTimerId);
+      autoHideTimerId = null;
+    }
+
     if (hideCursorTimerId) {
       clearTimeout(hideCursorTimerId);
       hideCursorTimerId = 0;
@@ -1097,10 +1135,8 @@
   <title>redditpx - {slugstr ? `r/${subreddit}` : "reddit.com"}</title>
 </svelte:head>
 
-<template lang="pug"
-.wrapper(class:hide-cursor='{hideCursor}')
-  .hero>
-.wrapper(class:hide-cursor='{hideCursor}')
+<template lang="pug">
+.wrapper(class:hide-cursor='{hideCursor}', on:mousemove='{handleCursorMovement}')
   .hero
     .title(class:hide="{!uiVisible || !titleVisible}", class:favorite="{currpost.favorite}")
       +if('displayposts.length')
