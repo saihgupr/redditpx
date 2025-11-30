@@ -16,7 +16,8 @@
     oldreddit,
     imageVideo,
     portraitLandscape,
-    muted
+    muted,
+    multireddit
   } from "../_prefs";
   autoplayinterval.useLocalStorage(3);
   scrollspeed.useLocalStorage(2);
@@ -29,12 +30,39 @@
   imageVideo.useLocalStorage(0);
   portraitLandscape.useLocalStorage(0);
   muted.useLocalStorage(true);
+  multireddit.useLocalStorage({});
 
   function hideSettings() {
     showSettings = false;
   }
 
   let activeTab = 1;
+
+  let showMultiredditPopup = false;
+  let multiredditInput = "";
+
+  function openMultiredditPopup() {
+    multiredditInput = $multireddit ? Object.keys($multireddit).join("+") : "";
+    showMultiredditPopup = true;
+  }
+
+  function saveMultireddit() {
+    const subs = multiredditInput.split("+").map(s => s.trim()).filter(s => s);
+    const newStore = {};
+    subs.forEach(sub => {
+      if ($multireddit && $multireddit[sub]) {
+        newStore[sub] = $multireddit[sub];
+      } else {
+        newStore[sub] = { preview: "" };
+      }
+    });
+    multireddit.set(newStore);
+    showMultiredditPopup = false;
+  }
+
+  function closeMultiredditPopup() {
+    showMultiredditPopup = false;
+  }
 
   let _autoplayinterval = $autoplayinterval;
   let _scrollspeed = $scrollspeed;
@@ -199,6 +227,10 @@
           span.text.tooltip(data-tooltip="Choose whether to show portrait only, landscape only or both") Display portrait/landscape/both
           span
             span.button(on:click='{togglePortraitLandscape}') {portraitLandscapeStates[_portraitLandscape]}
+        .item
+          span.text Edit Multireddits
+          span
+            span.button(on:click='{openMultiredditPopup}') Edit
         //p remove duplicates
         //p aggressive caching (thumb vs preview)
       div.option(class:active='{activeTab == 2}')
@@ -256,6 +288,14 @@
         .item
           span.text Add to multireddit
           span.key s
+  .multireddit-popup(class:show='{showMultiredditPopup}')
+    .popup-content
+      h3 Edit Multireddits
+      p Enter subreddits separated by '+'
+      textarea(bind:value='{multiredditInput}', placeholder="aww+funny")
+      .buttons
+        span.button(on:click='{saveMultireddit}') Save
+        span.button(on:click='{closeMultiredditPopup}') Cancel
 </template>
 
 <style lang="sass">
@@ -516,5 +556,77 @@ $over18-border-color: #ea4335
     &:before, &:after
       visibility: visible
       opacity: 1
+
+.multireddit-popup
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  background-color: rgba(0, 0, 0, 0.9)
+  z-index: 10000
+  display: none
+  align-items: center
+  justify-content: center
+
+  &.show
+    display: flex
+
+  .popup-content
+    background-color: #222
+    padding: 2rem
+    border-radius: 8px
+    width: 80%
+    max-width: 500px
+    display: flex
+    flex-direction: column
+    gap: 1rem
+    color: white
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5)
+
+    h3
+      margin: 0
+      font-size: 1.2rem
+      color: $yellow
+
+    p
+      margin: 0
+      color: #ccc
+      font-size: 0.9rem
+
+    textarea
+      width: 100%
+      height: 100px
+      background-color: #333
+      color: white
+      border: 1px solid #444
+      padding: 0.5rem
+      border-radius: 4px
+      resize: vertical
+      font-family: inherit
+      box-sizing: border-box
+
+      &:focus
+        outline: none
+        border-color: $yellow
+
+    .buttons
+      display: flex
+      gap: 1rem
+      justify-content: flex-end
+
+      .button
+        background-color: #444
+        padding: 0.5rem 1rem
+        border-radius: 4px
+        cursor: pointer
+        border: 1px solid transparent
+        transition: all 0.2s
+        color: white
+
+        &:hover
+          background-color: #555
+          color: white
+          border-color: white
 
 </style>
