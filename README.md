@@ -63,6 +63,10 @@ The static files will be located in the `__sapper__/export` directory.
 - Fixed audio handling for Reddit (v.redd.it) videos
 - Mute button works
 - M toggles mute
+- **Multireddit Import**: View multiple subreddits at once using `+` separator (e.g., `/r/pics+aww+wallpapers`)
+- **Cursor-based UI Auto-hide**: Moving the cursor temporarily shows the UI when hidden, then auto-hides after 3 seconds of inactivity
+- **Sort Selector**: Easily switch between Hot, New, Rising, Top, and Controversial sorting with time filters for Top/Controversial
+- **Compact Multireddit List**: Streamlined list view on the home page for better visibility of saved subreddits
 
 ## Features
 
