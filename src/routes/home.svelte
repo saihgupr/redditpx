@@ -337,6 +337,37 @@ $over18-border-color: #ea4335
                 padding: 0.3rem
                 border-radius: 3px
 
+      // Specific compact styling for multireddit section
+      &.multireddit
+        .items
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
+          grid-gap: 8px
+
+          .itemwrapper
+            a
+              .item
+                height: 3rem
+                padding: 0.5rem 1rem
+                display: flex
+                align-items: center
+                background-size: cover
+                background-position: center
+                background-blend-mode: overlay
+                background-color: rgba(0, 0, 0, 0.6)
+                transition: all 0.2s ease
+
+                span
+                  background-color: rgba(0, 0, 0, 0.8)
+                  padding: 0.3rem 0.6rem
+                  border-radius: 4px
+                  font-size: 0.9rem
+
+              @include hover()
+                .item
+                  background-color: rgba(0, 0, 0, 0.4)
+                  transform: translateX(5px)
+
+
 
 .tooltip
   position: relative
