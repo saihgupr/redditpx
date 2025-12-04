@@ -91,9 +91,9 @@
   let autoHideTimerId = null; // Timer for auto-hiding UI after cursor stops moving
   let titleVisible = true;
   let numFavorite;
-  let tinygoto;
   let title;
   let albumindex = 0;
+  let timelineRef; // Reference to the timeline scroll container
 
   // Handle cursor movement - only show UI when it's hidden (if auto-hide is enabled)
   function handleCursorMovement() {
@@ -157,25 +157,17 @@
     }
   }
 
-  $: {
-    if ($gotoElWidth > 1000) {
-      // padding on both sides
-      let numGotoControlsInOneRow = ($gotoElWidth - 154 * 2) / 32;
-      let numGotoControlsRows =
-        (displayposts.length + 5) / numGotoControlsInOneRow;
-      tinygoto = numGotoControlsRows > 3;
-    } else if ($gotoElWidth > 800) {
-      // padding on right side
-      let numGotoControlsInOneRow = ($gotoElWidth - (154 + 14)) / 32;
-      let numGotoControlsRows =
-        (displayposts.length + 5) / numGotoControlsInOneRow;
-      tinygoto = numGotoControlsRows > 3;
-    } else {
-      // no padding
-      let numGotoControlsInOneRow = ($gotoElWidth - (14 + 14)) / 32;
-      let numGotoControlsRows =
-        (displayposts.length + 5) / numGotoControlsInOneRow;
-      tinygoto = numGotoControlsRows > 3;
+
+
+  // Auto-scroll timeline to keep current item visible
+  $: if (timelineRef && displayposts.length > 0) {
+    const currentItemEl = timelineRef.querySelector('.nums.currnum');
+    if (currentItemEl) {
+      currentItemEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
     }
   }
 
@@ -1201,7 +1193,7 @@
           maxItemsToShowInList="0", minCharactersToSearch="3", hideArrow=true, bind:text="{subredditSearchValueRaw}", 
           create="{true}", createText="{'Hit enter to go to /r/' + subredditSearchValueRaw}", onCreate="{jumpToSubReddit}")
     +if('displayposts.length || posts.length')
-      .goto(class:tinygoto='{tinygoto}', class:hide="{uiVisible == false}", bind:clientWidth='{$_gotoElWidth}')
+      .goto(class:hide="{uiVisible == false}", bind:clientWidth='{$_gotoElWidth}')
         .btnwrapper
           span.btn.playpause.tooltip(
             data-tooltip="{autoplaystr}",
@@ -1240,12 +1232,6 @@
             on:click="{toggleMuted}"
           )
             Icon(icon="{$muted ? faSoundOff : faSoundOn}")
-          +if('tinygoto')
-            span.btn.reload.tooltip(data-tooltip="{reloadstr}", on:click='{loadMore}', class:loaderror='{loadError}')
-              +if('loading')
-                Icon(icon="{faSpinner}")
-                +else()
-                  Icon(icon="{faSync}")
           span.btn.over18wrapper.tooltip(
             data-tooltip="{over18str}",
             class:over18="{!$over18}",
@@ -1266,7 +1252,7 @@
           +if('filterValue')
             span.btn.deepsearch.tooltip(data-tooltip="{deepsearchstr}", on:click='{gotoDeepSearch}')
               p deep search 🠒
-        .numswrapper
+        .numswrapper(bind:this='{timelineRef}')
           +each('displayposts as post, i (post.id + post.url)')
             span.nums(
               class:currnum="{index === i}",
@@ -1277,14 +1263,13 @@
             )
               img.small(alt="{displayposts[i].title}", src="{displayposts[i].thumbnail}")
               p.small(class:curr="{index === i}", class:album="{currpost.is_album}") {i+1}
-          +if('!tinygoto')
-            span.displayinfo(class:filterExpanded="{filterValue}")
-              p {displayposts.length}/{posts.length}
-            span.btn.reload.tooltip(data-tooltip="{reloadstr}", on:click='{loadMore}', class:loaderror='{loadError}')
-              +if('loading')
-                Icon(icon="{faSpinner}")
-                +else()
-                  Icon(icon="{faSync}")
+          span.displayinfo(class:filterExpanded="{filterValue}")
+            p {displayposts.length}/{posts.length}
+          span.btn.reload.tooltip(data-tooltip="{reloadstr}", on:click='{loadMore}', class:loaderror='{loadError}')
+            +if('loading')
+              Icon(icon="{faSpinner}")
+              +else()
+                Icon(icon="{faSync}")
   +if('$prefetch')
     .prefetch
       +each('nexturls as nexturl (nexturl.preview.img.default)')
@@ -1472,81 +1457,86 @@ $isnotmulti-color: #34a853
       backdrop-filter: blur(20px)
       bottom: 0
       display: grid
+      grid-template-rows: auto auto
+      grid-template-columns: 1fr
       grid-row-gap: 8px
       padding: 1.5rem 2rem
       border-radius: 12px
       margin: 1rem
       color: $text-color
       width: calc(100% - 2rem)
-      grid-template-columns: repeat(auto-fill, minmax(40px, 1fr))
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
 
-      &.tinygoto
-        grid-template-rows: auto 1fr
-        grid-template-columns: 1fr
-
-        .btnwrapper
-          grid-template-columns: repeat(auto-fill, minmax(32px, 1fr))
-          display: grid
-
-        .numswrapper
-          grid-template-columns: repeat(auto-fit, minmax(1rem, auto))
-          grid-auto-columns: max-content
-          display: grid
-          grid-gap: 0.2rem
-
-
-          .nums
-            border-bottom: 3px solid rgba(white, 30%)
-            height: 32px
-            cursor: pointer
-            border-radius: 4px
-            transition: all 0.2s ease
-            display: flex
-            align-items: center
-            justify-content: center
-            min-width: 40px
-
-            @include hover()
-              border-bottom: 3px solid $accent-color !important
-              background-color: rgba(255, 255, 255, 0.1)
-
-            &.currnum
-              border-bottom: 3px solid $accent-color !important
-
-              &.album
-                border-bottom: 3px dotted $accent-color !important
-
-            &.favorite
-              border-bottom: 3px solid $favorite-color
-
-            &.over18
-              border-bottom: 3px solid $over18-color
-
-          p
-            display: none
-
-          .reload
-            grid-column: span 2
-
-      .btnwrapper, .numswrapper
-        display: contents
-
       .btnwrapper
-
-        .reload
-          bottom: -1px
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        gap: 0.5rem
+        align-items: center
 
       .numswrapper
+        display: flex
+        flex-direction: row
+        flex-wrap: nowrap
+        overflow-x: auto
+        overflow-y: hidden
+        gap: 0.2rem
+        scroll-behavior: smooth
+        // Hide scrollbar but keep functionality
+        scrollbar-width: none
+        -ms-overflow-style: none
+        
+        &::-webkit-scrollbar
+          display: none
+
+        .nums
+          border-bottom: 3px solid rgba(white, 30%)
+          height: 32px
+          cursor: pointer
+          border-radius: 4px
+          transition: all 0.2s ease
+          display: flex
+          align-items: center
+          justify-content: center
+          min-width: 40px
+          flex-shrink: 0
+
+          @include hover()
+            border-bottom: 3px solid $accent-color !important
+            background-color: rgba(255, 255, 255, 0.1)
+
+          &.currnum
+            border-bottom: 3px solid $accent-color !important
+
+            &.album
+              border-bottom: 3px dotted $accent-color !important
+
+          &.favorite
+            border-bottom: 3px solid $favorite-color
+
+          &.over18
+            border-bottom: 3px solid $over18-color
+
+        p.small
+          // Timeline numbers
+          margin: 0
+          font-size: 0.9rem
+          display: block
 
         .displayinfo
-          grid-column: span 1
+          flex-shrink: 0
           font-size: 0.8rem
           margin-top: 2px
+          display: flex
+          align-items: center
 
           p
             margin: 0
             text-align: center
+            display: block
+
+        .reload
+          flex-shrink: 0
 
       .btn
         text-align: center
@@ -1835,13 +1825,11 @@ $isnotmulti-color: #34a853
     .hero
       .goto
         padding: 1rem
-        //grid-template-columns: 32px 32px 32px 32px 32px repeat(auto-fit, minmax(32px, 1fr))
-        //grid-template-rows: 1fr 1fr
 
-        &.tinygoto
+        .nums
+          // Keep timeline items compact on mobile
+          min-width: 32px
 
-          .nums
-            height: 0.1rem !important
         img.small
           display: none
 
