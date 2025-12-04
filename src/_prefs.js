@@ -52,3 +52,4 @@ export const lores = store("lores");
 export const oldreddit = store("oldreddit");
 export const muted = store("muted");
 export const layout = store("layout");
+export const autoHideUI = store("autoHideUI");

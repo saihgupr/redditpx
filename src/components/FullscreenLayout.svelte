@@ -58,7 +58,8 @@
     lores,
     oldreddit,
     muted,
-    layout
+    layout,
+    autoHideUI
   } from "../_prefs";
   autoplay.useLocalStorage(false);
   autoplayinterval.useLocalStorage(3);
@@ -74,6 +75,7 @@
   oldreddit.useLocalStorage(false);
   muted.useLocalStorage(true);
   layout.useLocalStorage(0);
+  autoHideUI.useLocalStorage(false);
 
   export let params, slugstr;
   export let posts;
@@ -93,8 +95,13 @@
   let title;
   let albumindex = 0;
 
-  // Handle cursor movement - only show UI when it's hidden
+  // Handle cursor movement - only show UI when it's hidden (if auto-hide is enabled)
   function handleCursorMovement() {
+    // Only react if auto-hide UI feature is enabled
+    if (!$autoHideUI) {
+      return;
+    }
+    
     // Only react to cursor movement if UI is currently hidden
     if (!uiVisible) {
       // Show both UI and cursor

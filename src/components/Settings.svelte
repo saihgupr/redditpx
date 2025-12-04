@@ -17,7 +17,8 @@
     imageVideo,
     portraitLandscape,
     muted,
-    multireddit
+    multireddit,
+    autoHideUI
   } from "../_prefs";
   autoplayinterval.useLocalStorage(3);
   scrollspeed.useLocalStorage(2);
@@ -31,6 +32,7 @@
   portraitLandscape.useLocalStorage(0);
   muted.useLocalStorage(true);
   multireddit.useLocalStorage({});
+  autoHideUI.useLocalStorage(false);
 
   function hideSettings() {
     showSettings = false;
@@ -75,6 +77,7 @@
   let _muted = $muted;
   let _imageVideo = $imageVideo;
   let _portraitLandscape = $portraitLandscape;
+  let _autoHideUI = $autoHideUI;
 
   let imagesVideoStates = [
     "Both images and videos",
@@ -159,6 +162,12 @@
 
     muted.set(_muted);
   }
+
+  function toggleAutoHideUI() {
+    _autoHideUI = !_autoHideUI;
+
+    autoHideUI.set(_autoHideUI);
+  }
 </script>
 
 <template lang="pug">
@@ -227,6 +236,10 @@
           span.text.tooltip(data-tooltip="Choose whether to show portrait only, landscape only or both") Display portrait/landscape/both
           span
             span.button(on:click='{togglePortraitLandscape}') {portraitLandscapeStates[_portraitLandscape]}
+        .item
+          span.text.tooltip(data-tooltip="Automatically hide UI when cursor moves (and show again when moving)") Auto-hide UI on cursor movement
+          span
+            span.button(on:click='{toggleAutoHideUI}') {_autoHideUI ? "Auto-hide is on" : "Auto-hide is off"}
         .item
           span.text Edit Multireddits
           span
