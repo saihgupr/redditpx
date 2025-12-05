@@ -273,6 +273,11 @@
   }
 
   onMount(async () => {
+    // Preload more posts on initial load so timeline has enough items
+    if (after && posts.length < 50) {
+      await loadMore();
+    }
+    
     // Start autoplay by default
     if ($autoplay) {
       startAutoPlay();
