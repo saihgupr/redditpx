@@ -1456,11 +1456,11 @@ $isnotmulti-color: #34a853
       background-color: rgba(26, 26, 26, 0.5)
       backdrop-filter: blur(20px)
       bottom: 0
-      display: grid
-      grid-template-rows: auto auto
-      grid-template-columns: 1fr
-      grid-row-gap: 8px
-      padding: 1.5rem 2rem
+      display: flex
+      flex-direction: row
+      align-items: center
+      gap: 1rem
+      padding: 1rem 2rem
       border-radius: 12px
       margin: 1rem
       color: $text-color
@@ -1482,6 +1482,8 @@ $isnotmulti-color: #34a853
         overflow-y: hidden
         gap: 0.2rem
         scroll-behavior: smooth
+        flex: 1
+        min-width: 0
         // Hide scrollbar but keep functionality
         scrollbar-width: none
         -ms-overflow-style: none
