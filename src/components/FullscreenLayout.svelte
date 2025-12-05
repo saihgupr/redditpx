@@ -1500,28 +1500,70 @@ $isnotmulti-color: #34a853
           justify-content: center
           min-width: 40px
           flex-shrink: 0
+          position: relative
 
           @include hover()
-            border-bottom: 3px solid $accent-color !important
             background-color: rgba(255, 255, 255, 0.1)
+            border-bottom: 3px solid $accent-color !important
 
           &.currnum
+            background-color: rgba(255, 255, 255, 0.2)
             border-bottom: 3px solid $accent-color !important
 
             &.album
-              border-bottom: 3px dotted $accent-color !important
+              border-bottom: 3px dashed $accent-color !important
 
           &.favorite
-            border-bottom: 3px solid $favorite-color
+            p.small
+              border-bottom: 3px solid $favorite-border-color !important
+              color: $favorite-color
+
+            img.small
+              border-color: $favorite-border-color !important
 
           &.over18
-            border-bottom: 3px solid $over18-color
+            p.small
+              color: $over18-color
+              border-bottom: 3px solid $over18-border-color
 
-        p.small
-          // Timeline numbers
-          margin: 0
-          font-size: 0.9rem
-          display: block
+            img.small
+              border-color: $over18-border-color
+
+          p.small
+            margin: 0 2px
+            text-align: center
+            cursor: pointer
+            border-bottom: 3px solid rgba(0, 0, 0, 0)
+            font-size: 0.9rem
+            display: block
+
+            &.curr
+              background-color: rgba(255, 255, 255, 0.2)
+              border-bottom: 3px solid $accent-color !important
+
+              &.album
+                border-bottom: 3px dashed $accent-color !important
+
+          img.small
+            z-index: 10
+            width: 0px
+            opacity: 0
+            position: absolute
+            bottom: 35px
+            border: 2px solid white
+            background-color: lighten(black, 30%)
+            min-width: 100px
+            pointer-events: none
+            object-fit: cover
+
+          &:hover p.small
+            background-color: rgba(255, 255, 255, 0.1)
+            border-bottom: 3px solid $accent-color !important
+
+          &:hover img.small
+            width: auto
+            height: 100px
+            opacity: 1
 
         .displayinfo
           flex-shrink: 0
