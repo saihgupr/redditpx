@@ -64,9 +64,10 @@ The static files will be located in the `__sapper__/export` directory.
 - Mute button works
 - M toggles mute
 - **Multireddit Import**: View multiple subreddits at once using `+` separator (e.g., `/r/pics+aww+wallpapers`)
-- **Cursor-based UI Auto-hide**: Moving the cursor temporarily shows the UI when hidden, then auto-hides after 3 seconds of inactivity
+- **Optional Auto-hide UI**: Configurable setting in Settings to automatically show/hide UI on cursor movement (off by default)
 - **Sort Selector**: Easily switch between Hot, New, Rising, Top, and Controversial sorting with time filters for Top/Controversial
 - **Compact Multireddit List**: Streamlined list view on the home page for better visibility of saved subreddits
+- **Horizontal Scrolling Timeline**: Bottom timeline navigation now uses a smooth horizontal carousel that auto-scrolls to keep the current item centered, preventing wrapping with large numbers of posts
 
 ## Browser Extensions
 
