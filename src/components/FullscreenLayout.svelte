@@ -158,17 +158,19 @@
   }
 
 
-
   // Auto-scroll timeline to keep current item visible
-  $: if (timelineRef && displayposts.length > 0) {
-    const currentItemEl = timelineRef.querySelector('.nums.currnum');
-    if (currentItemEl) {
-      currentItemEl.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
-      });
-    }
+  $: if (timelineRef && index >= 0) {
+    // Use tick to ensure DOM is updated before scrolling
+    tick().then(() => {
+      const currentItemEl = timelineRef.querySelector('.nums.currnum');
+      if (currentItemEl) {
+        currentItemEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    });
   }
 
   // 1440 is to set numCols to 3. Setting to `0` would mean we start with 1 col, and then quickly update to 3 on desktop.
