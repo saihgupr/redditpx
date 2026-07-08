@@ -28,6 +28,7 @@
   import { faMobileAlt as faPortrait } from "@fortawesome/free-solid-svg-icons/faMobileAlt";
   import { faDesktop as faLandscape } from "@fortawesome/free-solid-svg-icons/faDesktop";
   import { faBan } from "@fortawesome/free-solid-svg-icons/faBan";
+  import { faList } from "@fortawesome/free-solid-svg-icons/faList";
 
   import AutoComplete from "simple-svelte-autocomplete";
 
@@ -61,7 +62,8 @@
     muted,
     layout,
     autoHideUI,
-    blockedUsers
+    blockedUsers,
+    viewMode
   } from "../_prefs";
   autoplay.useLocalStorage(false);
   autoplayinterval.useLocalStorage(3);
@@ -77,6 +79,7 @@
   oldreddit.useLocalStorage(false);
   muted.useLocalStorage(true);
   layout.useLocalStorage(0);
+  viewMode.useLocalStorage(0);
   autoHideUI.useLocalStorage(false);
   blockedUsers.useLocalStorage({});
 
@@ -101,6 +104,8 @@
   let toastMessage = "";
   let toastVisible = false;
   let toastTimerId = null;
+
+  let shuffled = false;
 
   // Handle cursor movement - only show UI when it's hidden (if auto-hide is enabled)
   function handleCursorMovement() {
@@ -368,11 +373,91 @@
     $muted = !$muted;
   }
 
-  function togglePortraitLandscape() {
-    $portraitLandscape = $portraitLandscape + 1;
+  function toggleViewMode() {
+    $viewMode = $viewMode === 0 ? 1 : 0;
+  }
 
-    if ($portraitLandscape == 3) {
-      $portraitLandscape = 0;
+  function togglePostFavorite(post) {
+    skipRenderVideo = true;
+    post.favorite = !post.favorite;
+
+    let url = post.url;
+    $favorite[url] = undefined;
+    $favorite = JSON.parse(JSON.stringify($favorite));
+    $favorite[url] = post;
+    favorite.set($favorite);
+    displayposts = displayposts;
+  }
+
+  function openPostComments(post) {
+    const baseUrl = $oldreddit ? "https://old.reddit.com" : "https://reddit.com";
+    window.open(baseUrl + post.permalink, "_blank");
+  }
+
+  function openPostSubreddit(post) {
+    ahref("/" + post.subredditp);
+  }
+
+  function openPostUser(post) {
+    ahref("/" + post.authorp);
+  }
+
+  function handleFavoriteClick(post) {
+    return function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      togglePostFavorite(post);
+    }
+  }
+
+  function handleCommentsClick(post) {
+    return function(e) {
+      openPostComments(post);
+    }
+  }
+
+  function handleSubredditClick(post) {
+    return function(e) {
+      openPostSubreddit(post);
+    }
+  }
+
+  function handleUserClick(post) {
+    return function(e) {
+      openPostUser(post);
+    }
+  }
+
+  function handleListScroll(event) {
+    if ($viewMode !== 1) return;
+    const target = event.target;
+    
+    // Infinite scroll check
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 400) {
+      if (!loading) {
+        loadMore();
+      }
+    }
+    
+    // Active index updating
+    const cards = target.querySelectorAll('.list-card');
+    let closestIndex = index;
+    let minDistance = Infinity;
+    const containerRect = target.getBoundingClientRect();
+    const containerCenter = containerRect.top + containerRect.height / 2;
+    
+    cards.forEach((card, idx) => {
+      const rect = card.getBoundingClientRect();
+      const cardCenter = rect.top + rect.height / 2;
+      const distance = Math.abs(cardCenter - containerCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = idx;
+      }
+    });
+    
+    if (closestIndex !== index && closestIndex >= 0 && closestIndex < displayposts.length) {
+      index = closestIndex;
     }
   }
 
@@ -596,15 +681,6 @@
       );
     }
 
-    // Filter only videos
-    if ($imageVideo == 1) {
-      tmp = tmp.filter((item) => item.is_video);
-    }
-    // Filter only images
-    else if ($imageVideo == 2) {
-      tmp = tmp.filter((item) => item.is_image);
-    }
-
     if ($portraitLandscape == 1) {
       tmp = tmp.filter((item) => item.dims.width / item.dims.height <= 1.2);
     } else if ($portraitLandscape == 2) {
@@ -614,6 +690,10 @@
     // Filter out blocked users
     if ($blockedUsers) {
       tmp = tmp.filter((item) => !$blockedUsers[item.author]);
+    }
+
+    if (shuffled) {
+      tmp = shuffle(tmp);
     }
 
     displayposts = tmp;
@@ -644,6 +724,13 @@
     }
 
     if ($autoplay) stopAndStartAutoPlay();
+
+    if ($viewMode === 1) {
+      const el = document.getElementById(`post-card-${i}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
   }
 
   function videoended() {
@@ -867,8 +954,8 @@
     window.open("/download", "_blank");
   }
 
-  async function shuffleFiles() {
-    displayposts = shuffle(displayposts);
+  function toggleShuffle() {
+    shuffled = !shuffled;
   }
 
   function openMedia() {
@@ -1081,6 +1168,13 @@
       return;
     }
 
+    if ($viewMode === 1) {
+      // In list mode, let standard scrolling keys (space, arrows, pgup/pgdn) behave natively
+      if ([32, 33, 34, 37, 38, 39, 40].includes(event.keyCode)) {
+        return;
+      }
+    }
+
     // up
     if (event.keyCode == 38) {
       next();
@@ -1175,10 +1269,7 @@
       toggleTitleVisibility();
     }
 
-    // v
-    if (event.keyCode == 118) {
-      toggleImageVideo();
-    }
+
 
     // c
     if (event.keyCode == 67) {
@@ -1231,7 +1322,7 @@
 <template lang="pug">
 .wrapper(class:hide-cursor='{hideCursor}', on:mousemove='{handleCursorMovement}')
   .hero
-    .title(class:hide="{!uiVisible || !titleVisible}", class:favorite="{currpost.favorite}")
+    .title(class:hide="{!uiVisible || !titleVisible || $viewMode == 1}", class:favorite="{currpost.favorite}")
       +if('displayposts.length')
         span.fav(on:click|stopPropagation|preventDefault="{toggleFavorite}")
           Icon(icon="{currpost.favorite ? faFav : faUnFav}")
@@ -1258,30 +1349,71 @@
         Icon(icon="{faSettings}")
       .div(class:hide='{uiVisible == false}')
         Settings(bind:showSettings)
-    +if('currpost.is_image && !currpost.is_album')
-      +if('$hires')
-        .image(style="background-image: url('{currpost.url}')")
-        +else()
-          .image(style="background-image: url('{currpost.preview.img.default}')")
-      +elseif('currpost.is_video && renderVideo') 
-        video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", id="videoplayerid", on:click="{onVideoPlayerClicked}")
-          +if('$lores')
-            source(src="{currpost.preview.vid.lores}")
+    +if('$viewMode == 1')
+      .list-layout(on:scroll="{handleListScroll}")
+        +each('displayposts as post, idx (post.id + post.url)')
+          .list-card(id="post-card-{idx}")
+            .list-card-header
+              .title-row
+                span.fav(on:click="{handleFavoriteClick(post)}", class:active="{post.favorite}")
+                  Icon(icon="{post.favorite ? faFav : faUnFav}")
+                span.post-index {idx + 1}.
+                span.post-title(on:click="{handleCommentsClick(post)}") {post.title}
+              +if('post.subreddit')
+                .subreddit-info
+                  span.subreddit-name(on:click="{handleSubredditClick(post)}") {post.subredditp}
+                  span.user-name(on:click="{handleUserClick(post)}") {post.authorp}
+            .list-card-media
+              +if('post.is_image && !post.is_album')
+                +if('$hires')
+                  img.list-img(alt="{post.title}", src="{post.url}", loading="lazy")
+                  +else
+                    img.list-img(alt="{post.title}", src="{post.preview.img.default}", loading="lazy")
+                +elseif('post.is_video')
+                  video.list-vid(controls, loop, playsinline, muted='{$muted}')
+                    +if('$lores')
+                      source(src="{post.preview.vid.lores}")
+                      +else
+                        +if('post.preview.vid.webm')
+                          source(src="{post.preview.vid.webm}")
+                        +if('post.preview.vid.mp4')
+                          source(src="{post.preview.vid.mp4}")
+                +elseif('post.is_album')
+                  .list-album
+                    +each('post.preview.img.album as albumItem')
+                      +if('albumItem.is_video')
+                        video.list-vid(controls, loop, playsinline, muted='{$muted}')
+                          source(src="{albumItem.hires}")
+                        +else
+                          +if('$hires')
+                            img.list-img(alt="{post.title}", src="{albumItem.hires}", loading="lazy")
+                            +else
+                              img.list-img(alt="{post.title}", src="{albumItem.default}", loading="lazy")
+      +else
+        +if('currpost.is_image && !currpost.is_album')
+          +if('$hires')
+            .image(style="background-image: url('{currpost.url}')")
             +else()
-              +if('currpost.preview.vid.webm')
-                source(src="{currpost.preview.vid.webm}")
-              +if('currpost.preview.vid.mp4')
-                source(src="{currpost.preview.vid.mp4}")
-                
-      +elseif('currpost.is_album')
-        +if('currpost.preview.img.album[albumindex].is_video')
-          video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", on:click="{onVideoPlayerClicked}")
-            source(src="{currpost.preview.img.album[albumindex].hires}")
-          +else()
-            +if('$hires')
-              .image(style="background-image: url('{currpost.preview.img.album[albumindex].hires}')")
+              .image(style="background-image: url('{currpost.preview.img.default}')")
+          +elseif('currpost.is_video && renderVideo') 
+            video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", id="videoplayerid", on:click="{onVideoPlayerClicked}")
+              +if('$lores')
+                source(src="{currpost.preview.vid.lores}")
+                +else()
+                  +if('currpost.preview.vid.webm')
+                    source(src="{currpost.preview.vid.webm}")
+                  +if('currpost.preview.vid.mp4')
+                    source(src="{currpost.preview.vid.mp4}")
+                    
+          +elseif('currpost.is_album')
+            +if('currpost.preview.img.album[albumindex].is_video')
+              video.video(autoplay='true', loop='{!$autoplay}', playsinline, muted='{$muted}', on:ended="{videoended}", on:dblclick="{toggleFullscreen}", class:hide-cursor='{hideCursor}', on:mousemove="{toggleHideCursor}", on:click="{onVideoPlayerClicked}")
+                source(src="{currpost.preview.img.album[albumindex].hires}")
               +else()
-                .image(style="background-image: url('{currpost.preview.img.album[albumindex].default}')")
+                +if('$hires')
+                  .image(style="background-image: url('{currpost.preview.img.album[albumindex].hires}')")
+                  +else()
+                    .image(style="background-image: url('{currpost.preview.img.album[albumindex].default}')")
     .subredditsearchwrapper(class:hide='{subredditSearchVisible == false}', on:click="{hideSubredditSearch}")
       .subredditsearch(bind:this='{subredditSearchRef}' on:click|stopPropagation, on:keydown|stopPropagation)
         span.header Jump to subreddit
@@ -1298,31 +1430,17 @@
           )
             Icon(icon="{$autoplay ? faPause : faPlay}")
           span.btn.dice.tooltip(
-            on:click="{shuffleFiles}",
+            on:click="{toggleShuffle}",
+            class:active="{shuffled}",
             data-tooltip="Shuffle",
           )
             Icon(icon="{faDice}")
-          span.btn.portraitlandscape.tooltip(
-            on:click="{togglePortraitLandscape}",
-            data-tooltip="{portraitLandscapeStr}",
-            class:active="{$portraitLandscape}"
+          span.btn.viewmode.tooltip(
+            on:click="{toggleViewMode}",
+            data-tooltip="{$viewMode == 0 ? 'Gallery' : 'Slideshow'}",
+            class:active="{$viewMode == 1}"
           )
-            +if('$portraitLandscape == 0')
-              Icon(icon="{faLandscape}")
-              +elseif('$portraitLandscape == 1')
-                Icon(icon="{faPortrait}")
-              +elseif('$portraitLandscape == 2')
-                Icon(class="landscape", icon="{faPortrait}")
-          span.btn.imagevideo.tooltip(
-            data-tooltip="{imageVideoStr}",
-            on:click="{toggleImageVideo}"
-          )
-            +if('$imageVideo == 0')
-              Icon(icon="{faImageVideo}")
-              +elseif('$imageVideo == 1')
-                Icon(icon="{faVideo}")
-              +elseif('$imageVideo == 2')
-                Icon(icon="{faImage}")
+            Icon(icon="{$viewMode == 0 ? faColumns : faLandscape}")
           span.btn.muted.tooltip(
             data-tooltip="{mutedstr}",
             on:click="{toggleMuted}"
@@ -1745,11 +1863,7 @@ $isnotmulti-color: #34a853
             position: relative
             top: -1px
 
-        &.imagevideo
-          cursor: pointer
-          font-size: 1.4rem
-          bottom: 2px
-          color: white
+
 
         &.layout
           cursor: pointer
@@ -1766,20 +1880,22 @@ $isnotmulti-color: #34a853
           bottom: 2px
           color: white
 
-        &.portraitlandscape
+        &.viewmode
           cursor: pointer
           font-size: 1.4rem
           bottom: 2px
           color: white
 
-          & :global(.landscape)
-            transform: rotate(270deg)
+          &.active
+            color: $favorite-color
 
         &.dice
           cursor: pointer
           font-size: 1.4rem
           bottom: 2px
-          color: white
+
+          &.active
+            color: $favorite-color
 
         &.download
           cursor: default
@@ -2068,5 +2184,126 @@ $isnotmulti-color: #34a853
 
   &.fade-out
     animation: fadeOutDown 0.3s ease-in forwards
+
+.list-layout
+  width: 100%
+  height: 100%
+  overflow-y: auto
+  padding: 80px 20px 120px 20px
+  box-sizing: border-box
+  column-count: 4
+  column-gap: 20px
+  scroll-behavior: smooth
+
+  @media (max-width: 1600px)
+    column-count: 3
+  @media (max-width: 1100px)
+    column-count: 2
+  @media (max-width: 700px)
+    column-count: 1
+
+  &::-webkit-scrollbar
+    width: 8px
+  &::-webkit-scrollbar-track
+    background: rgba(0, 0, 0, 0.1)
+  &::-webkit-scrollbar-thumb
+    background: rgba(255, 255, 255, 0.2)
+    border-radius: 4px
+    &:hover
+      background: rgba(255, 255, 255, 0.4)
+
+  .list-card
+    display: inline-block
+    width: 100%
+    break-inside: avoid
+    background: rgba(255, 255, 255, 0.03)
+    backdrop-filter: blur(10px)
+    border: 1px solid rgba(255, 255, 255, 0.08)
+    border-radius: 16px
+    padding: 16px
+    margin-bottom: 20px
+    box-sizing: border-box
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease
+
+    &:hover
+      transform: translateY(-2px)
+      border-color: rgba(255, 255, 255, 0.2)
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5)
+
+    .list-card-header
+      display: flex
+      flex-direction: column
+      gap: 6px
+
+      .title-row
+        display: flex
+        align-items: flex-start
+        gap: 12px
+
+        .fav
+          cursor: pointer
+          color: rgba(255, 255, 255, 0.4)
+          font-size: 1.2rem
+          transition: color 0.2s ease
+          margin-top: 2px
+
+          &:hover, &.active
+            color: $favorite-color
+
+        .post-index
+          color: rgba(255, 255, 255, 0.3)
+          font-size: 1.1rem
+          font-family: "Roboto Condensed", sans-serif
+          margin-top: 2px
+
+        .post-title
+          color: $text-color
+          font-size: 1.1rem
+          font-weight: 500
+          line-height: 1.4
+          cursor: pointer
+          text-decoration: none
+          transition: color 0.2s ease
+
+          &:hover
+            color: $yellow
+
+      .subreddit-info
+        display: flex
+        gap: 10px
+        font-size: 0.85rem
+        color: rgba(255, 255, 255, 0.5)
+        margin-left: 36px
+
+        .subreddit-name, .user-name
+          cursor: pointer
+          transition: color 0.2s ease
+          &:hover
+            color: white
+
+    .list-card-media
+      display: flex
+      flex-direction: column
+      align-items: center
+      justify-content: center
+      width: 100%
+      margin-top: 12px
+
+      .list-img, .list-vid
+        width: 100%
+        height: auto
+        max-height: 600px
+        background: rgba(0, 0, 0, 0.2)
+        border-radius: 8px
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4)
+        object-fit: contain
+
+      .list-album
+        display: flex
+        flex-direction: column
+        width: 100%
+        gap: 15px
+        align-items: center
 
 </style>

@@ -54,3 +54,4 @@ export const muted = store("muted");
 export const layout = store("layout");
 export const autoHideUI = store("autoHideUI");
 export const blockedUsers = store("blockedUsers");
+export const viewMode = store("viewMode");

@@ -14,8 +14,7 @@
     hires,
     lores,
     oldreddit,
-    imageVideo,
-    portraitLandscape,
+    viewMode,
     muted,
     multireddit,
     autoHideUI,
@@ -29,8 +28,7 @@
   hires.useLocalStorage(false);
   lores.useLocalStorage(false);
   oldreddit.useLocalStorage(false);
-  imageVideo.useLocalStorage(0);
-  portraitLandscape.useLocalStorage(0);
+  viewMode.useLocalStorage(0);
   muted.useLocalStorage(true);
   multireddit.useLocalStorage({});
   autoHideUI.useLocalStorage(false);
@@ -77,20 +75,9 @@
   let _prefetchNum = $prefetchNum;
   let _numCols = $numCols;
   let _muted = $muted;
-  let _imageVideo = $imageVideo;
-  let _portraitLandscape = $portraitLandscape;
+  let _viewMode = $viewMode;
+  $: _viewMode = $viewMode;
   let _autoHideUI = $autoHideUI;
-
-  let imagesVideoStates = [
-    "Both images and videos",
-    "Videos only",
-    "Images only"
-  ];
-  let portraitLandscapeStates = [
-    "Both landscape and portrait",
-    "Portrait only",
-    "Landscape only"
-  ];
 
   $: {
     let i = Math.round(_autoplayinterval);
@@ -122,23 +109,9 @@
     oldreddit.set(_oldreddit);
   }
 
-  function toggleImageVideo() {
-    _imageVideo = _imageVideo + 1;
 
-    if (_imageVideo == 3) {
-      _imageVideo = 0;
-    }
-
-    imageVideo.set(_imageVideo);
-  }
-  function togglePortraitLandscape() {
-    _portraitLandscape = _portraitLandscape + 1;
-
-    if (_portraitLandscape == 3) {
-      _portraitLandscape = 0;
-    }
-
-    portraitLandscape.set(_portraitLandscape);
+  function toggleViewMode() {
+    viewMode.set($viewMode === 0 ? 1 : 0);
   }
 
   function toggleHiRes() {
@@ -237,14 +210,11 @@
           span.text.tooltip(data-tooltip="Choose whether to go to reddit.com or old.reddit.com") reddit.com link handling
           span
             span.button(on:click='{toggleOldReddit}') {_oldreddit ? "old.reddit.com" : "reddit.com (New)"}
+
         .item
-          span.text.tooltip(data-tooltip="Choose whether to show videos only, images only or both") Display images/videos/both
+          span.text.tooltip(data-tooltip="Choose whether to show posts as a slideshow or gallery grid") Layout mode
           span
-            span.button(on:click='{toggleImageVideo}') {imagesVideoStates[_imageVideo]}
-        .item
-          span.text.tooltip(data-tooltip="Choose whether to show portrait only, landscape only or both") Display portrait/landscape/both
-          span
-            span.button(on:click='{togglePortraitLandscape}') {portraitLandscapeStates[_portraitLandscape]}
+            span.button(on:click='{toggleViewMode}') {_viewMode == 0 ? "Slideshow" : "Gallery"}
         .item
           span.text.tooltip(data-tooltip="Automatically hide UI when cursor moves (and show again when moving)") Auto-hide UI on cursor movement
           span
