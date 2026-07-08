@@ -18,7 +18,8 @@
     muted,
     multireddit,
     autoHideUI,
-    blockedUsers
+    blockedUsers,
+    galleryScrollDir
   } from "../_prefs";
   autoplayinterval.useLocalStorage(3);
   scrollspeed.useLocalStorage(2);
@@ -33,6 +34,7 @@
   multireddit.useLocalStorage({});
   autoHideUI.useLocalStorage(false);
   blockedUsers.useLocalStorage({});
+  galleryScrollDir.useLocalStorage(0);
 
   function hideSettings() {
     showSettings = false;
@@ -112,6 +114,10 @@
 
   function toggleViewMode() {
     viewMode.set($viewMode === 0 ? 1 : 0);
+  }
+
+  function toggleGalleryScrollDir() {
+    galleryScrollDir.set($galleryScrollDir === 0 ? 1 : 0);
   }
 
   function toggleHiRes() {
@@ -215,6 +221,10 @@
           span.text.tooltip(data-tooltip="Choose whether to show posts as a slideshow or gallery grid") Layout mode
           span
             span.button(on:click='{toggleViewMode}') {_viewMode == 0 ? "Slideshow" : "Gallery"}
+        .item
+          span.text.tooltip(data-tooltip="In Gallery mode, scroll direction for the image pile") Gallery scroll direction
+          span
+            span.button(on:click='{toggleGalleryScrollDir}') {$galleryScrollDir === 0 ? "Vertical (scroll down)" : "Horizontal (scroll right)"}
         .item
           span.text.tooltip(data-tooltip="Automatically hide UI when cursor moves (and show again when moving)") Auto-hide UI on cursor movement
           span

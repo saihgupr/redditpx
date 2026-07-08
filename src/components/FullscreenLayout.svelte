@@ -63,7 +63,8 @@
     layout,
     autoHideUI,
     blockedUsers,
-    viewMode
+    viewMode,
+    galleryScrollDir
   } from "../_prefs";
   autoplay.useLocalStorage(false);
   autoplayinterval.useLocalStorage(3);
@@ -82,6 +83,7 @@
   viewMode.useLocalStorage(0);
   autoHideUI.useLocalStorage(false);
   blockedUsers.useLocalStorage({});
+  galleryScrollDir.useLocalStorage(0);
 
   export let params, slugstr;
   export let posts;
@@ -287,43 +289,46 @@
   let galleryRef; // bound to .gallery-layout element
 
   async function fillGallery() {
-    // Keep loading until the gallery content fills the viewport (or we run out)
-    for (let i = 0; i < 6 && after; i++) {
+    // Keep loading batches until we have plenty of posts for the gallery
+    for (let i = 0; i < 8; i++) {
+      if (!after) break;
+      if (displayposts.length >= 50) break;
       await loadMore();
       await tick();
-      // Stop if gallery is taller than the viewport
-      if (galleryRef && galleryRef.scrollHeight > galleryRef.clientHeight + 200) break;
     }
   }
 
   onMount(async () => {
-    // Load at least 3 batches upfront so gallery has lots of content
+    // Always load several batches so gallery has dense content
     if (after) {
       await loadMore();
-      if (after) await loadMore();
-      if (after) await loadMore();
+      await tick();
+    }
+    if (after) {
+      await loadMore();
+      await tick();
+    }
+    if (after) {
+      await loadMore();
+      await tick();
     }
 
-    // If still not filling the screen, keep going
-    await tick();
-    if ($viewMode === 1) {
-      fillGallery();
+    // If still short, keep filling
+    if (displayposts.length < 50) {
+      await fillGallery();
     }
-    
+
     // Start autoplay by default
     if ($autoplay) {
       startAutoPlay();
     }
   });
 
-  // When switching to gallery mode, also fill if needed
-  $: if ($viewMode === 1) {
-    tick().then(() => {
-      if (galleryRef && galleryRef.scrollHeight <= galleryRef.clientHeight + 200 && after && !loading) {
-        fillGallery();
-      }
-    });
+  // When switching TO gallery mode, fill if we don't have enough content
+  $: if ($viewMode === 1 && !loading && displayposts.length < 50 && after) {
+    fillGallery();
   }
+
 
   function startAutoPlay() {
     //console.log('START')
@@ -1165,12 +1170,23 @@
   }
 
   function wheel(event) {
+    // In gallery mode, let the gallery handle its own scrolling
+    if ($viewMode === 1) return;
     if (showSettings) return;
 
     if (event.deltaY > 0) {
       next();
     } else if (event.deltaY < 0) {
       prev();
+    }
+  }
+
+  function handleGalleryWheel(event) {
+    if ($viewMode !== 1 || $galleryScrollDir !== 1) return;
+    // Horizontal gallery: redirect vertical scroll to horizontal
+    event.preventDefault();
+    if (galleryRef) {
+      galleryRef.scrollLeft += event.deltaY * 1.5;
     }
   }
 
@@ -1364,7 +1380,7 @@
       .div(class:hide='{uiVisible == false}')
         Settings(bind:showSettings)
     +if('$viewMode == 1')
-      .gallery-layout(on:scroll="{handleListScroll}", bind:this="{galleryRef}")
+      .gallery-layout(on:scroll="{handleListScroll}", bind:this="{galleryRef}", on:wheel="{handleGalleryWheel}", class:horizontal="{$galleryScrollDir === 1}")
         +each('displayposts as post, idx (post.id + post.url)')
           .gallery-item(on:click="{function(){handleGalleryItemClick(post, idx)}}", class:favorite="{post.favorite}", class:over18="{post.over18}")
             .gallery-media
@@ -2189,30 +2205,48 @@ $isnotmulti-color: #34a853
   &.fade-out
     animation: fadeOutDown 0.3s ease-in forwards
 
-// ─── Gallery (masonry pile) layout ───────────────────────────────────────────
+// ─── Gallery layout ──────────────────────────────────────────────────────────
 .gallery-layout
   width: 100%
   height: 100%
   overflow-y: auto
+  overflow-x: hidden
   padding: 72px 12px 140px 12px
   box-sizing: border-box
-  // CSS columns for native masonry stacking
-  column-count: 5
-  column-gap: 10px
+  // Vertical: CSS Grid, left→right then DOWN
+  display: grid
+  grid-template-columns: repeat(5, 1fr)
+  grid-auto-rows: auto
+  align-items: start
+  gap: 6px
   scroll-behavior: smooth
   background: #0a0a0a
 
   @media (max-width: 1800px)
-    column-count: 4
+    grid-template-columns: repeat(4, 1fr)
   @media (max-width: 1300px)
-    column-count: 3
+    grid-template-columns: repeat(3, 1fr)
   @media (max-width: 900px)
-    column-count: 2
+    grid-template-columns: repeat(2, 1fr)
   @media (max-width: 500px)
-    column-count: 1
+    grid-template-columns: 1fr
+
+  // Horizontal mode: single tall row, scroll right
+  &.horizontal
+    display: flex
+    flex-direction: row
+    flex-wrap: nowrap
+    overflow-x: auto
+    overflow-y: hidden
+    padding: 72px 12px 72px 12px
+    align-items: stretch
+    gap: 6px
+    // Make it easy to scroll right with trackpad / mouse
+    scroll-snap-type: x proximity
 
   &::-webkit-scrollbar
     width: 5px
+    height: 5px
   &::-webkit-scrollbar-track
     background: transparent
   &::-webkit-scrollbar-thumb
@@ -2222,14 +2256,23 @@ $isnotmulti-color: #34a853
       background: rgba(255, 255, 255, 0.3)
 
 .gallery-item
-  display: inline-block
+  display: block
   width: 100%
-  break-inside: avoid
-  margin-bottom: 10px
   position: relative
-  border-radius: 8px
+  border-radius: 4px
   overflow: hidden
   cursor: pointer
+  background: #111
+  // Uniform aspect ratio: clean Instagram-style grid, no row-height gaps
+  aspect-ratio: 4 / 3
+
+  // In horizontal mode: natural width from media, full container height
+  .gallery-layout.horizontal &
+    flex: 0 0 auto
+    width: auto
+    height: 100%
+    aspect-ratio: unset
+
   // Subtle border
   outline: 1px solid rgba(255, 255, 255, 0.06)
   transition: outline-color 0.2s ease, transform 0.2s ease
@@ -2255,30 +2298,34 @@ $isnotmulti-color: #34a853
 .gallery-img
   display: block
   width: 100%
-  height: auto
+  height: 100%
   object-fit: cover
+  object-position: center
   background: #111
-  // Tiny fade-in when lazy-loaded
   animation: galleryFadeIn 0.3s ease
 
 .gallery-media
   display: block
   width: 100%
+  height: 100%
   line-height: 0
 
 .gallery-vid
   display: block
   width: 100%
-  height: auto
-  max-height: 520px
+  height: 100%
   object-fit: cover
   background: #111
 
 .gallery-album-stack
+  width: 100%
+  height: 100%
   position: relative
 
   .gallery-img, .gallery-vid
     width: 100%
+    height: 100%
+    object-fit: cover
 
   .album-count-badge
     position: absolute

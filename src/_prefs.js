@@ -55,3 +55,4 @@ export const layout = store("layout");
 export const autoHideUI = store("autoHideUI");
 export const blockedUsers = store("blockedUsers");
 export const viewMode = store("viewMode");
+export const galleryScrollDir = store("galleryScrollDir"); // 0 = vertical, 1 = horizontal
