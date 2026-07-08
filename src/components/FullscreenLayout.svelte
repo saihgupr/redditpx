@@ -284,10 +284,30 @@
     reloadstr = "Load more";
   }
 
-  onMount(async () => {
-    // Preload more posts on initial load so timeline has enough items
-    if (after && posts.length < 50) {
+  let galleryRef; // bound to .gallery-layout element
+
+  async function fillGallery() {
+    // Keep loading until the gallery content fills the viewport (or we run out)
+    for (let i = 0; i < 6 && after; i++) {
       await loadMore();
+      await tick();
+      // Stop if gallery is taller than the viewport
+      if (galleryRef && galleryRef.scrollHeight > galleryRef.clientHeight + 200) break;
+    }
+  }
+
+  onMount(async () => {
+    // Load at least 3 batches upfront so gallery has lots of content
+    if (after) {
+      await loadMore();
+      if (after) await loadMore();
+      if (after) await loadMore();
+    }
+
+    // If still not filling the screen, keep going
+    await tick();
+    if ($viewMode === 1) {
+      fillGallery();
     }
     
     // Start autoplay by default
@@ -295,6 +315,15 @@
       startAutoPlay();
     }
   });
+
+  // When switching to gallery mode, also fill if needed
+  $: if ($viewMode === 1) {
+    tick().then(() => {
+      if (galleryRef && galleryRef.scrollHeight <= galleryRef.clientHeight + 200 && after && !loading) {
+        fillGallery();
+      }
+    });
+  }
 
   function startAutoPlay() {
     //console.log('START')
@@ -432,33 +461,18 @@
     if ($viewMode !== 1) return;
     const target = event.target;
     
-    // Infinite scroll check
-    if (target.scrollHeight - target.scrollTop - target.clientHeight < 400) {
+    // Aggressive infinite scroll — trigger when 1200px from bottom
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 1200) {
       if (!loading) {
         loadMore();
       }
     }
-    
-    // Active index updating
-    const cards = target.querySelectorAll('.list-card');
-    let closestIndex = index;
-    let minDistance = Infinity;
-    const containerRect = target.getBoundingClientRect();
-    const containerCenter = containerRect.top + containerRect.height / 2;
-    
-    cards.forEach((card, idx) => {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.top + rect.height / 2;
-      const distance = Math.abs(cardCenter - containerCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIndex = idx;
-      }
-    });
-    
-    if (closestIndex !== index && closestIndex >= 0 && closestIndex < displayposts.length) {
-      index = closestIndex;
-    }
+  }
+
+  function handleGalleryItemClick(post, idx) {
+    // Switch to slideshow mode and jump to this post
+    index = idx;
+    $viewMode = 0;
   }
 
   let renderVideo = true;
@@ -1350,27 +1364,14 @@
       .div(class:hide='{uiVisible == false}')
         Settings(bind:showSettings)
     +if('$viewMode == 1')
-      .list-layout(on:scroll="{handleListScroll}")
+      .gallery-layout(on:scroll="{handleListScroll}", bind:this="{galleryRef}")
         +each('displayposts as post, idx (post.id + post.url)')
-          .list-card(id="post-card-{idx}")
-            .list-card-header
-              .title-row
-                span.fav(on:click="{handleFavoriteClick(post)}", class:active="{post.favorite}")
-                  Icon(icon="{post.favorite ? faFav : faUnFav}")
-                span.post-index {idx + 1}.
-                span.post-title(on:click="{handleCommentsClick(post)}") {post.title}
-              +if('post.subreddit')
-                .subreddit-info
-                  span.subreddit-name(on:click="{handleSubredditClick(post)}") {post.subredditp}
-                  span.user-name(on:click="{handleUserClick(post)}") {post.authorp}
-            .list-card-media
+          .gallery-item(on:click="{function(){handleGalleryItemClick(post, idx)}}", class:favorite="{post.favorite}", class:over18="{post.over18}")
+            .gallery-media
               +if('post.is_image && !post.is_album')
-                +if('$hires')
-                  img.list-img(alt="{post.title}", src="{post.url}", loading="lazy")
-                  +else
-                    img.list-img(alt="{post.title}", src="{post.preview.img.default}", loading="lazy")
+                img.gallery-img(alt="{post.title}", src="{$hires ? post.url : post.preview.img.default}", loading="lazy")
                 +elseif('post.is_video')
-                  video.list-vid(controls, loop, playsinline, muted='{$muted}')
+                  video.gallery-vid(loop, playsinline, muted, preload="metadata")
                     +if('$lores')
                       source(src="{post.preview.vid.lores}")
                       +else
@@ -1379,16 +1380,19 @@
                         +if('post.preview.vid.mp4')
                           source(src="{post.preview.vid.mp4}")
                 +elseif('post.is_album')
-                  .list-album
-                    +each('post.preview.img.album as albumItem')
+                  .gallery-album-stack
+                    +each('post.preview.img.album.slice(0, 1) as albumItem')
                       +if('albumItem.is_video')
-                        video.list-vid(controls, loop, playsinline, muted='{$muted}')
+                        video.gallery-vid(loop, playsinline, muted, preload="metadata")
                           source(src="{albumItem.hires}")
                         +else
-                          +if('$hires')
-                            img.list-img(alt="{post.title}", src="{albumItem.hires}", loading="lazy")
-                            +else
-                              img.list-img(alt="{post.title}", src="{albumItem.default}", loading="lazy")
+                          img.gallery-img(alt="{post.title}", src="{$hires ? albumItem.hires : albumItem.default}", loading="lazy")
+                    .album-count-badge {post.preview.img.album.length} items
+            .gallery-hover-info
+              .gallery-info-actions
+                span.gallery-fav(on:click|stopPropagation="{handleFavoriteClick(post)}", class:active="{post.favorite}")
+                  Icon(icon="{post.favorite ? faFav : faUnFav}")
+                span.gallery-video-badge(class:show="{post.is_video}") VID
       +else
         +if('currpost.is_image && !currpost.is_album')
           +if('$hires')
@@ -2185,125 +2189,183 @@ $isnotmulti-color: #34a853
   &.fade-out
     animation: fadeOutDown 0.3s ease-in forwards
 
-.list-layout
+// ─── Gallery (masonry pile) layout ───────────────────────────────────────────
+.gallery-layout
   width: 100%
   height: 100%
   overflow-y: auto
-  padding: 80px 20px 120px 20px
+  padding: 72px 12px 140px 12px
   box-sizing: border-box
-  column-count: 4
-  column-gap: 20px
+  // CSS columns for native masonry stacking
+  column-count: 5
+  column-gap: 10px
   scroll-behavior: smooth
+  background: #0a0a0a
 
-  @media (max-width: 1600px)
+  @media (max-width: 1800px)
+    column-count: 4
+  @media (max-width: 1300px)
     column-count: 3
-  @media (max-width: 1100px)
+  @media (max-width: 900px)
     column-count: 2
-  @media (max-width: 700px)
+  @media (max-width: 500px)
     column-count: 1
 
   &::-webkit-scrollbar
-    width: 8px
+    width: 5px
   &::-webkit-scrollbar-track
-    background: rgba(0, 0, 0, 0.1)
+    background: transparent
   &::-webkit-scrollbar-thumb
-    background: rgba(255, 255, 255, 0.2)
-    border-radius: 4px
+    background: rgba(255, 255, 255, 0.15)
+    border-radius: 3px
     &:hover
-      background: rgba(255, 255, 255, 0.4)
+      background: rgba(255, 255, 255, 0.3)
 
-  .list-card
-    display: inline-block
+.gallery-item
+  display: inline-block
+  width: 100%
+  break-inside: avoid
+  margin-bottom: 10px
+  position: relative
+  border-radius: 8px
+  overflow: hidden
+  cursor: pointer
+  // Subtle border
+  outline: 1px solid rgba(255, 255, 255, 0.06)
+  transition: outline-color 0.2s ease, transform 0.2s ease
+
+  // Favorite glow
+  &.favorite
+    outline-color: rgba($favorite-color, 0.5)
+
+  &.over18
+    outline-color: rgba($over18-color, 0.3)
+
+  @include hover()
+    outline-color: rgba(255, 255, 255, 0.3)
+    transform: scale(1.015)
+    z-index: 2
+
+    .gallery-hover-info
+      opacity: 1
+
+    .gallery-vid
+      // Autoplay on hover
+
+.gallery-img
+  display: block
+  width: 100%
+  height: auto
+  object-fit: cover
+  background: #111
+  // Tiny fade-in when lazy-loaded
+  animation: galleryFadeIn 0.3s ease
+
+.gallery-media
+  display: block
+  width: 100%
+  line-height: 0
+
+.gallery-vid
+  display: block
+  width: 100%
+  height: auto
+  max-height: 520px
+  object-fit: cover
+  background: #111
+
+.gallery-album-stack
+  position: relative
+
+  .gallery-img, .gallery-vid
     width: 100%
-    break-inside: avoid
-    background: rgba(255, 255, 255, 0.03)
-    backdrop-filter: blur(10px)
-    border: 1px solid rgba(255, 255, 255, 0.08)
-    border-radius: 16px
-    padding: 16px
-    margin-bottom: 20px
-    box-sizing: border-box
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3)
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease
 
-    &:hover
-      transform: translateY(-2px)
-      border-color: rgba(255, 255, 255, 0.2)
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5)
+  .album-count-badge
+    position: absolute
+    top: 8px
+    right: 8px
+    background: rgba(0, 0, 0, 0.7)
+    backdrop-filter: blur(8px)
+    color: white
+    font-size: 0.7rem
+    font-weight: 600
+    padding: 3px 8px
+    border-radius: 20px
+    border: 1px solid rgba(255, 255, 255, 0.2)
+    letter-spacing: 0.03em
+    pointer-events: none
 
-    .list-card-header
+.gallery-hover-info
+  position: absolute
+  inset: 0
+  // Gradient only at top and bottom so image is clearly visible in center
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 28%, transparent 70%, rgba(0,0,0,0.65) 100%)
+  opacity: 0
+  transition: opacity 0.2s ease
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  padding: 10px
+  box-sizing: border-box
+  pointer-events: none
+
+  .gallery-info-actions
+    display: flex
+    align-items: center
+    justify-content: space-between
+    pointer-events: all
+
+    .gallery-fav
+      cursor: pointer
+      color: rgba(255, 255, 255, 0.7)
+      font-size: 1.1rem
+      transition: color 0.15s ease, transform 0.15s ease
+      width: 28px
+      height: 28px
       display: flex
-      flex-direction: column
-      gap: 6px
-
-      .title-row
-        display: flex
-        align-items: flex-start
-        gap: 12px
-
-        .fav
-          cursor: pointer
-          color: rgba(255, 255, 255, 0.4)
-          font-size: 1.2rem
-          transition: color 0.2s ease
-          margin-top: 2px
-
-          &:hover, &.active
-            color: $favorite-color
-
-        .post-index
-          color: rgba(255, 255, 255, 0.3)
-          font-size: 1.1rem
-          font-family: "Roboto Condensed", sans-serif
-          margin-top: 2px
-
-        .post-title
-          color: $text-color
-          font-size: 1.1rem
-          font-weight: 500
-          line-height: 1.4
-          cursor: pointer
-          text-decoration: none
-          transition: color 0.2s ease
-
-          &:hover
-            color: $yellow
-
-      .subreddit-info
-        display: flex
-        gap: 10px
-        font-size: 0.85rem
-        color: rgba(255, 255, 255, 0.5)
-        margin-left: 36px
-
-        .subreddit-name, .user-name
-          cursor: pointer
-          transition: color 0.2s ease
-          &:hover
-            color: white
-
-    .list-card-media
-      display: flex
-      flex-direction: column
       align-items: center
       justify-content: center
-      width: 100%
-      margin-top: 12px
+      background: rgba(0,0,0,0.4)
+      border-radius: 50%
+      backdrop-filter: blur(4px)
 
-      .list-img, .list-vid
-        width: 100%
-        height: auto
-        max-height: 600px
-        background: rgba(0, 0, 0, 0.2)
-        border-radius: 8px
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4)
-        object-fit: contain
+      &:hover, &.active
+        color: $favorite-color
+        transform: scale(1.2)
 
-      .list-album
-        display: flex
-        flex-direction: column
-        width: 100%
-        gap: 15px
-        align-items: center
+    .gallery-video-badge
+      display: none
+      background: rgba(0, 0, 0, 0.55)
+      color: white
+      font-size: 0.65rem
+      padding: 2px 6px
+      border-radius: 4px
+      backdrop-filter: blur(4px)
+      border: 1px solid rgba(255,255,255,0.2)
+
+      &.show
+        display: block
+
+  .gallery-info-meta
+    display: flex
+    flex-direction: column
+    gap: 1px
+
+    .gallery-sub
+      color: rgba(255, 255, 255, 0.9)
+      font-size: 0.72rem
+      font-weight: 600
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8)
+
+    .gallery-user
+      color: rgba(255, 255, 255, 0.55)
+      font-size: 0.65rem
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8)
+
+@keyframes galleryFadeIn
+  from
+    opacity: 0
+  to
+    opacity: 1
 
 </style>
