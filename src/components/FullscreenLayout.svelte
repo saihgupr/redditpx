@@ -480,6 +480,19 @@
     $viewMode = 0;
   }
 
+  function getGalleryAspectPadding(post) {
+    if (post && post.dims && post.dims.width && post.dims.height) {
+      let ratio = post.dims.width / post.dims.height;
+      if (!isNaN(ratio) && isFinite(ratio) && ratio > 0) {
+        // Clamp aspect ratio between 0.6 (portrait) and 2.0 (landscape)
+        ratio = Math.min(Math.max(ratio, 0.6), 2.0);
+        let paddingPercent = (1 / ratio) * 100;
+        return `padding-top: ${paddingPercent.toFixed(2)}%;`;
+      }
+    }
+    return 'padding-top: 75%;';
+  }
+
   let renderVideo = true;
 
   // Some operations like fav/unfav causes video to re-render
@@ -2207,20 +2220,22 @@ $isnotmulti-color: #34a853
 
 // ─── Gallery layout ──────────────────────────────────────────────────────────
 .gallery-layout
-  width: 100%
-  height: 100%
+  // Break out of the .hero grid so we control our own sizing & scrolling
+  position: fixed
+  inset: 0
   overflow-y: auto
   overflow-x: hidden
   padding: 72px 12px 140px 12px
   box-sizing: border-box
-  // Vertical: CSS Grid, left→right then DOWN
+  background: #0a0a0a
+  scroll-behavior: smooth
+  z-index: 1
+
+  // Vertical mode: uniform rows, no collapsing
   display: grid
   grid-template-columns: repeat(5, 1fr)
-  grid-auto-rows: auto
-  align-items: start
-  gap: 6px
-  scroll-behavior: smooth
-  background: #0a0a0a
+  grid-auto-rows: 200px
+  gap: 10px
 
   @media (max-width: 1800px)
     grid-template-columns: repeat(4, 1fr)
@@ -2228,20 +2243,21 @@ $isnotmulti-color: #34a853
     grid-template-columns: repeat(3, 1fr)
   @media (max-width: 900px)
     grid-template-columns: repeat(2, 1fr)
+    grid-auto-rows: 160px
   @media (max-width: 500px)
     grid-template-columns: 1fr
+    grid-auto-rows: 220px
 
-  // Horizontal mode: single tall row, scroll right
+  // Horizontal mode: single tall row scrolling right
   &.horizontal
     display: flex
     flex-direction: row
     flex-wrap: nowrap
     overflow-x: auto
     overflow-y: hidden
-    padding: 72px 12px 72px 12px
+    padding: 0 12px
     align-items: stretch
-    gap: 6px
-    // Make it easy to scroll right with trackpad / mouse
+    gap: 10px
     scroll-snap-type: x proximity
 
   &::-webkit-scrollbar
@@ -2258,26 +2274,22 @@ $isnotmulti-color: #34a853
 .gallery-item
   display: block
   width: 100%
+  height: 100%
   position: relative
-  border-radius: 4px
+  border-radius: 6px
   overflow: hidden
   cursor: pointer
   background: #111
-  // Uniform aspect ratio: clean Instagram-style grid, no row-height gaps
-  aspect-ratio: 4 / 3
 
-  // In horizontal mode: natural width from media, full container height
+  // In horizontal mode: flex item
   .gallery-layout.horizontal &
     flex: 0 0 auto
     width: auto
     height: 100%
-    aspect-ratio: unset
 
-  // Subtle border
   outline: 1px solid rgba(255, 255, 255, 0.06)
   transition: outline-color 0.2s ease, transform 0.2s ease
 
-  // Favorite glow
   &.favorite
     outline-color: rgba($favorite-color, 0.5)
 
@@ -2286,14 +2298,21 @@ $isnotmulti-color: #34a853
 
   @include hover()
     outline-color: rgba(255, 255, 255, 0.3)
-    transform: scale(1.015)
+    transform: scale(1.02)
     z-index: 2
 
     .gallery-hover-info
       opacity: 1
 
-    .gallery-vid
-      // Autoplay on hover
+.gallery-media
+  display: block
+  width: 100%
+  height: 100%
+  line-height: 0
+
+  .gallery-layout.horizontal &
+    width: auto
+    height: 100%
 
 .gallery-img
   display: block
@@ -2303,12 +2322,6 @@ $isnotmulti-color: #34a853
   object-position: center
   background: #111
   animation: galleryFadeIn 0.3s ease
-
-.gallery-media
-  display: block
-  width: 100%
-  height: 100%
-  line-height: 0
 
 .gallery-vid
   display: block
