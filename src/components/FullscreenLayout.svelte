@@ -1461,8 +1461,6 @@
                           img.gallery-img(alt="{post.title}", src="{$hires ? albumItem.hires : albumItem.default}", loading="lazy")
             .gallery-hover-info
               .gallery-info-actions
-                span.gallery-fav(on:click|stopPropagation="{handleFavoriteClick(post)}", class:active="{post.favorite}")
-                  Icon(icon="{post.favorite ? faFav : faUnFav}")
                 .gallery-right-badges
                   +if('post.is_album')
                     span.gallery-album-count(title="{post.preview.img.album.length} items") {post.preview.img.album.length}
@@ -2402,26 +2400,8 @@ $isnotmulti-color: #34a853
   .gallery-info-actions
     display: flex
     align-items: center
-    justify-content: space-between
+    justify-content: flex-end
     pointer-events: all
-
-    .gallery-fav
-      cursor: pointer
-      color: rgba(255, 255, 255, 0.7)
-      font-size: 1.1rem
-      transition: color 0.15s ease, transform 0.15s ease
-      width: 28px
-      height: 28px
-      display: flex
-      align-items: center
-      justify-content: center
-      background: rgba(0,0,0,0.4)
-      border-radius: 50%
-      backdrop-filter: blur(4px)
-
-      &:hover, &.active
-        color: $favorite-color
-        transform: scale(1.2)
 
     .gallery-right-badges
       display: flex
