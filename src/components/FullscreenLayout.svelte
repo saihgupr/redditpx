@@ -2435,7 +2435,7 @@ $isnotmulti-color: #34a853
         align-items: center
         justify-content: center
         background: rgba(0, 0, 0, 0.4)
-        color: white
+        color: rgba(255, 255, 255, 0.7)
         font-size: 0.8rem
         font-weight: 600
         border-radius: 50%
