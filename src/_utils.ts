@@ -24,11 +24,18 @@ export async function get_posts(url: string) {
   console.log('get_posts url: ', url);
   try {
     if (url.includes('/r/home.') || url.includes('/r/home2.')) {
-      let favorites: FormattedItemA[] = Object.values(JSON.parse(localStorage.getItem("favorite")));
+      let favObj = null;
+      try {
+        const raw = localStorage.getItem("favorite");
+        if (raw && raw !== "undefined") favObj = JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+      }
+      let favorites: FormattedItemA[] = favObj && typeof favObj === "object" ? Object.values(favObj) : [];
       if (!url.includes('/r/home2.')) {
-        favorites = favorites.filter((item) => true === item.favorite);
+        favorites = favorites.filter((item) => item && true === item.favorite);
       } else {
-        favorites = favorites.filter((item) => false === item.favorite);
+        favorites = favorites.filter((item) => item && false === item.favorite);
       }
       favorites.reverse();
 

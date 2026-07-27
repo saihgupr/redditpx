@@ -18,8 +18,13 @@ const store = (key, initialValue) => {
         console.log(e);
       }
 
-      if (json) {
-        set(JSON.parse(json));
+      if (json && json !== "undefined") {
+        try {
+          set(JSON.parse(json));
+        } catch (e) {
+          console.log(e);
+          set(defaultValue);
+        }
       } else {
         set(defaultValue);
       }

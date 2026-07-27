@@ -462,9 +462,42 @@
     }
   }
 
+  let galleryScrollTop = 0;
+  let galleryScrollLeft = 0;
+  let lastClickedIndex = null;
+
+  $: if ($viewMode === 1) {
+    restoreGalleryScroll();
+  }
+
+  async function restoreGalleryScroll() {
+    await tick();
+    const scrollTarget = () => {
+      if (!galleryRef) return;
+      // Temporarily disable smooth scroll so the jump is instant and accurate
+      galleryRef.style.scrollBehavior = 'auto';
+      const items = galleryRef.querySelectorAll('.gallery-item');
+      if (items && items[index]) {
+        items[index].scrollIntoView({ block: 'center', inline: 'center' });
+      } else {
+        galleryRef.scrollTop = galleryScrollTop;
+        galleryRef.scrollLeft = galleryScrollLeft;
+      }
+      setTimeout(() => {
+        if (galleryRef) galleryRef.style.scrollBehavior = '';
+      }, 50);
+    };
+
+    scrollTarget();
+    requestAnimationFrame(scrollTarget);
+    setTimeout(scrollTarget, 100);
+  }
+
   function handleListScroll(event) {
     if ($viewMode !== 1) return;
     const target = event.target;
+    galleryScrollTop = target.scrollTop;
+    galleryScrollLeft = target.scrollLeft;
     
     // Aggressive infinite scroll — trigger when 1200px from bottom
     if (target.scrollHeight - target.scrollTop - target.clientHeight < 1200) {
@@ -475,6 +508,11 @@
   }
 
   function handleGalleryItemClick(post, idx) {
+    if (galleryRef) {
+      galleryScrollTop = galleryRef.scrollTop;
+      galleryScrollLeft = galleryRef.scrollLeft;
+    }
+    lastClickedIndex = idx;
     // Switch to slideshow mode and jump to this post
     index = idx;
     $viewMode = 0;
@@ -1317,6 +1355,11 @@
     // c
     if (event.keyCode == 67) {
       copySrcToClipboard();
+    }
+
+    // w
+    if (event.keyCode == 87) {
+      toggleViewMode();
     }
 
     const n = event.keyCode - 48;

@@ -293,6 +293,9 @@
         .item
           span.text Add to multireddit
           span.key s
+        .item
+          span.text Toggle view mode (Slideshow / Gallery)
+          span.key w
       div.option(class:active='{activeTab == 3}')
         +if('Object.keys($blockedUsers).length === 0')
           .no-blocked
