@@ -1459,12 +1459,14 @@
                           source(src="{albumItem.hires}")
                         +else
                           img.gallery-img(alt="{post.title}", src="{$hires ? albumItem.hires : albumItem.default}", loading="lazy")
-                    .album-count-badge {post.preview.img.album.length} items
             .gallery-hover-info
               .gallery-info-actions
                 span.gallery-fav(on:click|stopPropagation="{handleFavoriteClick(post)}", class:active="{post.favorite}")
                   Icon(icon="{post.favorite ? faFav : faUnFav}")
-                span.gallery-video-badge(class:show="{post.is_video}") VID
+                .gallery-right-badges
+                  +if('post.is_album')
+                    span.gallery-album-count(title="{post.preview.img.album.length} items") {post.preview.img.album.length}
+                  span.gallery-video-badge(class:show="{post.is_video}") VID
       +else
         +if('currpost.is_image && !currpost.is_album')
           +if('$hires')
@@ -2383,21 +2385,6 @@ $isnotmulti-color: #34a853
     height: 100%
     object-fit: cover
 
-  .album-count-badge
-    position: absolute
-    top: 8px
-    right: 8px
-    background: rgba(0, 0, 0, 0.7)
-    backdrop-filter: blur(8px)
-    color: white
-    font-size: 0.7rem
-    font-weight: 600
-    padding: 3px 8px
-    border-radius: 20px
-    border: 1px solid rgba(255, 255, 255, 0.2)
-    letter-spacing: 0.03em
-    pointer-events: none
-
 .gallery-hover-info
   position: absolute
   inset: 0
@@ -2436,18 +2423,37 @@ $isnotmulti-color: #34a853
         color: $favorite-color
         transform: scale(1.2)
 
-    .gallery-video-badge
-      display: none
-      background: rgba(0, 0, 0, 0.55)
-      color: white
-      font-size: 0.65rem
-      padding: 2px 6px
-      border-radius: 4px
-      backdrop-filter: blur(4px)
-      border: 1px solid rgba(255,255,255,0.2)
+    .gallery-right-badges
+      display: flex
+      align-items: center
+      gap: 6px
 
-      &.show
-        display: block
+      .gallery-album-count
+        width: 28px
+        height: 28px
+        display: flex
+        align-items: center
+        justify-content: center
+        background: rgba(0, 0, 0, 0.4)
+        color: white
+        font-size: 0.8rem
+        font-weight: 600
+        border-radius: 50%
+        backdrop-filter: blur(4px)
+        user-select: none
+
+      .gallery-video-badge
+        display: none
+        background: rgba(0, 0, 0, 0.55)
+        color: white
+        font-size: 0.65rem
+        padding: 2px 6px
+        border-radius: 4px
+        backdrop-filter: blur(4px)
+        border: 1px solid rgba(255,255,255,0.2)
+
+        &.show
+          display: block
 
   .gallery-info-meta
     display: flex
