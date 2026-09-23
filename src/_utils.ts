@@ -21,6 +21,9 @@ export async function get_posts(url: string) {
   if (url.includes(' ')) {
     url = encodeURI(url);
   }
+  if (url.startsWith('https://reddit.com/')) {
+    url = url.replace('https://reddit.com/', 'https://www.reddit.com/');
+  }
   console.log('get_posts url: ', url);
   try {
     if (url.includes('/r/home.') || url.includes('/r/home2.')) {
@@ -47,7 +50,7 @@ export async function get_posts(url: string) {
       };
     }
 
-    let res = await fetchJsonp(url, { jsonpCallback: "jsonp", timeout: 10000 });
+    let res = await fetchJsonp(url, { jsonpCallback: "jsonp", timeout: 25000 });
     let data = await res.json();
     console.log("Fetched: ", data.data.children.length, data.data);
 

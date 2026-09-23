@@ -238,11 +238,11 @@
       div.option(class:active='{activeTab == 2}')
         .item
           span.text Play / Pause
+          span.key Space
           span.key q
           span.key p
         .item
           span.text Next item
-          span.key Space
           span.key Right
           span.key d
           span.key j

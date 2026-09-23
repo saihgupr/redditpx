@@ -1276,8 +1276,18 @@
       toggleMultireddit();
     }
 
-    // q, p
-    if (event.keyCode == 81 || event.keyCode == 80) {
+    // Space, q, p
+    if (
+      event.keyCode == 32 ||
+      event.keyCode == 81 ||
+      event.keyCode == 80 ||
+      event.keyCode == 19 ||
+      event.key === " " ||
+      event.key === "Spacebar" ||
+      event.key === "Pause" ||
+      event.key === "MediaPlayPause"
+    ) {
+      event.preventDefault();
       toggleAutoPlay();
     }
 
@@ -1382,12 +1392,11 @@
         itemPrev();
       }
     }
-    // Right Arrow, d, j, Space, Page-down
+    // Right Arrow, d, j, Page-down
     else if (
       event.keyCode == 39 ||
       event.keyCode == 68 ||
       event.keyCode == 74 ||
-      event.keyCode == 32 ||
       event.keyCode == 34
     ) {
       if (event.shiftKey) {
